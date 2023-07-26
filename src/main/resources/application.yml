@@ -1,0 +1,19 @@
+server:
+  port: 5432
+
+spring:
+  datasource:
+    password: postgres
+    username: postgres
+    url: jdbc:postgresql://localhost:5432/postgres
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+  security:
+    user:
+      name: postgres
+      password: postgres
+  mvc:
+    servlet:
+      path: /
