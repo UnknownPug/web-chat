@@ -65,23 +65,24 @@ public class ChatRoomController {
     }
 
     @ResponseStatus(HttpStatus.OK)
-    @GetMapping(path = "/messages")
+    @GetMapping(path = "/")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<List<ChatRoom>> getChatRoomBySpecificMessages(@RequestBody ChatRoomRequest request) {
-        if (request.message().isEmpty()) {
-            throw new ApplicationException(HttpStatus.NOT_FOUND, "ChatRoom message must be specified.");
+    public ResponseEntity<List<ChatRoom>> getChatRoomBySpecificSort(@RequestParam(value = "filter") String filter,
+                                                                @RequestBody ChatRoomRequest request) {
+        if (filter.equals("messages")) {
+            if (request.message().isEmpty()) {
+                throw new ApplicationException(HttpStatus.NOT_FOUND, "ChatRoom message must be specified.");
+            }
+            return ResponseEntity.ok(chatRoomService.getChatRoomBySpecificMessages(request.message()));
+        } else if (filter.equals("participants")) {
+            if (request.participants().isEmpty()) {
+                throw new ApplicationException(HttpStatus.NOT_FOUND, "ChatRoom participants be specified.");
+            }
+            return ResponseEntity.ok(chatRoomService.getChatRoomBySpecificParticipants(request.participants()));
+        } else {
+            throw new ApplicationException(
+                    HttpStatus.NOT_FOUND, "Specific sort must be specified: messages/participants.");
         }
-        return ResponseEntity.ok(chatRoomService.getChatRoomBySpecificMessages(request.message()));
-    }
-
-    @ResponseStatus(HttpStatus.OK)
-    @GetMapping(path = "/participants")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<List<ChatRoom>> getChatRoomBySpecificParticipants(@RequestBody ChatRoomRequest request) {
-        if (request.participants().isEmpty()) {
-            throw new ApplicationException(HttpStatus.NOT_FOUND, "ChatRoom participants be specified.");
-        }
-        return ResponseEntity.ok(chatRoomService.getChatRoomBySpecificParticipants(request.participants()));
     }
 
     @ResponseStatus(HttpStatus.CREATED)

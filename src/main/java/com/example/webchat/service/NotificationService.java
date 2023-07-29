@@ -65,6 +65,10 @@ public class NotificationService {
         notificationRepository.updateStatusFromFalseToTrue();
     }
 
+    public void markAllAsUnread() {
+        notificationRepository.updateStatusFromTrueToFalse();
+    }
+
     public void deleteNotification(Long id) {
         Notification notification = notificationRepository.findById(id).orElseThrow(
                 () -> new ApplicationException(HttpStatus.NOT_FOUND, "Notification with id " + id + " not found.")

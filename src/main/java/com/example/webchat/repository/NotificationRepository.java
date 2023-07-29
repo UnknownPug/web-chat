@@ -15,8 +15,11 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
 
     List<Notification> findAllByStatusIsTrue();
 
+
     @Modifying
     @Query(value = "UPDATE notification SET status = true WHERE status = false", nativeQuery = true)
     void updateStatusFromFalseToTrue();
-
+    @Modifying
+    @Query(value = "UPDATE notification SET status = false WHERE status = true", nativeQuery = true)
+    void updateStatusFromTrueToFalse();
 }

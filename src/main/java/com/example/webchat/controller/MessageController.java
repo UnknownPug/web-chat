@@ -47,65 +47,59 @@ public class MessageController {
     }
 
     @ResponseStatus(HttpStatus.OK)
-    @GetMapping(path = "/user/{id}")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<List<Message>> getSortedMessagesForUser(@RequestAttribute(value = "sort") String sort,
-                                                                  @PathVariable Long id) {
-        if (id <= 0) {
-            throw new ApplicationException(HttpStatus.NOT_FOUND, "User id must be specified.");
-        }
-        if (sort.equals("asc")) {
-            return ResponseEntity.ok(messageService.getSortedMessagesForUserAsc(id));
-        } else if (sort.equals("desc")) {
-            return ResponseEntity.ok(messageService.getSortedMessagesForUserDesc(id));
+    @GetMapping(path = "/filter/{id}")
+    @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
+    public ResponseEntity<List<Message>> getFilteredMessages(
+            @RequestParam(value = "type") String filter,
+            @RequestParam(value = "sort", required = false) String sort,
+            @PathVariable Long id
+    ) {
+        if (filter.equals("chat")) {
+            if (id <= 0) {
+                throw new ApplicationException(HttpStatus.NOT_FOUND, "Chat id must be specified.");
+            }
+            return ResponseEntity.ok(messageService.getSortedMessagesForChat(id));
+        } else if (filter.equals("user")) {
+            if (id <= 0) {
+                throw new ApplicationException(HttpStatus.NOT_FOUND, "User id must be specified.");
+            }
+            if (sort.equals("asc")) {
+                return ResponseEntity.ok(messageService.getSortedMessagesForUserAsc(id));
+            } else if (sort.equals("desc")) {
+                return ResponseEntity.ok(messageService.getSortedMessagesForUserDesc(id));
+            } else {
+                throw new ApplicationException(HttpStatus.NOT_FOUND, "Sort type must be specified: asc/desc.");
+            }
         } else {
-            throw new ApplicationException(HttpStatus.NOT_FOUND, "Sort type must be specified (asc/desc).");
+            throw new ApplicationException(HttpStatus.NOT_FOUND, "Type must be specified: chat/user.");
         }
     }
 
     @ResponseStatus(HttpStatus.OK)
-    @GetMapping(path = "/chat/{id}")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<List<Message>> getSortedMessagesForChat(@PathVariable Long id) {
-        if (id <= 0) {
-            throw new ApplicationException(HttpStatus.NOT_FOUND, "Chat id must be specified.");
-        }
-        return ResponseEntity.ok(messageService.getSortedMessagesForChat(id));
-    }
-
-    @ResponseStatus(HttpStatus.OK)
-    @GetMapping(path = "/sort/timestamp")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<List<Message>> getSortedMessagesByTimeStamp(
-            @RequestParam(value = "timestamp") LocalDateTime timestamp) {
-        if (timestamp == null) {
-            throw new ApplicationException(HttpStatus.NOT_FOUND, "Timestamp must be specified.");
-        }
-        return ResponseEntity.ok(messageService.getSortedMessagesByTimeStamp(timestamp));
-    }
-
-    @ResponseStatus(HttpStatus.OK)
-    @GetMapping(path = "/sort/keyword")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<List<Message>> getSortedMessagesByKeyword(@RequestParam String keyword) {
-        if (keyword == null) {
-            throw new ApplicationException(HttpStatus.NOT_FOUND, "Keyword must be specified.");
-        }
-        return ResponseEntity.ok(messageService.getSortedMessagesByKeyword(keyword));
-    }
-
-    @ResponseStatus(HttpStatus.OK)
-    @GetMapping(path = "/sort/")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<List<Message>> getSortedMessages(@RequestParam(value = "limit") int limit,
-                                                     @RequestParam(value = "offset") int offset) {
-        if (limit <= 0) {
+    @GetMapping(path = "/sort")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_USER')")
+    public ResponseEntity<List<Message>> getSortedMessages(
+            @RequestParam(value = "limit", required = false) Integer limit,
+            @RequestParam(value = "offset", required = false) Integer offset,
+            @RequestParam(value = "timestamp", required = false) LocalDateTime timestamp,
+            @RequestParam(value = "keyword", required = false) String keyword
+    ) {
+        if (limit != null && limit <= 0) {
             throw new ApplicationException(HttpStatus.NOT_FOUND, "Limit must be specified.");
         }
-        if (offset <= 0) {
+        if (offset != null && offset <= 0) {
             throw new ApplicationException(HttpStatus.NOT_FOUND, "Offset must be specified.");
         }
-        return ResponseEntity.ok(messageService.getSortedMessages(limit, offset));
+        if (timestamp != null) {
+            return ResponseEntity.ok(messageService.getSortedMessagesByTimeStamp(timestamp));
+        } else if (!keyword.isEmpty()) {
+            return ResponseEntity.ok(messageService.getSortedMessagesByKeyword(keyword));
+        } else if (limit != null && offset != null) {
+            return ResponseEntity.ok(messageService.getSortedMessages(limit, offset));
+        } else {
+            throw new ApplicationException(
+                    HttpStatus.NOT_FOUND, "Sort type must be specified: limit, offset/timestamp, keyword.");
+        }
     }
 
     @ResponseStatus(HttpStatus.CREATED)

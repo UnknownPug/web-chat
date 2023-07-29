@@ -27,7 +27,7 @@ public class UserController {
     }
 
     @ResponseStatus(HttpStatus.OK)
-    @GetMapping(path = "/")
+    @GetMapping
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<Iterable<User>> getUsers() {
         return ResponseEntity.ok(userService.getUsers());
@@ -66,7 +66,7 @@ public class UserController {
     @ResponseStatus(HttpStatus.OK)
     @GetMapping(path = "/search")
     @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_USER')")
-    public ResponseEntity<User> getUserByKeyword(@RequestParam(value = "query") String keyword) {
+    public ResponseEntity<User> getUserByKeyword(@RequestParam(value = "keyword") String keyword) {
         if (keyword == null) {
             throw new ApplicationException(HttpStatus.NOT_FOUND, "Keyword must be specified.");
         }
@@ -123,6 +123,9 @@ public class UserController {
         LOG.debug("Avatar has been successfully uploaded.");
     }
 
+    // ------------------------------------------------------
+    // TODO: Should be used in Spring security (authorization) for user visibility (online/offline)
+    // TODO: After should be used in React.js for demonstrating user status (online/offline)
     @ResponseStatus(HttpStatus.OK)
     @PostMapping("/login")
     public void login(@RequestBody UserRequest userRequest) {
@@ -136,6 +139,7 @@ public class UserController {
         userService.logoutUser(username);
         return ResponseEntity.ok().build();
     }
+    // ------------------------------------------------------
 
     @ResponseStatus(HttpStatus.OK)
     @PutMapping(path = "/{id}")

@@ -27,7 +27,7 @@ public class NotificationController {
     }
 
     @ResponseStatus(HttpStatus.OK)
-    @GetMapping(path = "/")
+    @GetMapping
     public ResponseEntity<Iterable<Notification>> getAllNotifications() {
         return ResponseEntity.ok(notificationService.getAllNotifications());
     }
@@ -42,7 +42,7 @@ public class NotificationController {
     }
 
     @ResponseStatus(HttpStatus.OK)
-    @GetMapping
+    @GetMapping(path = "/")
     public ResponseEntity<Iterable<Notification>> getUnreadNotifications(
             @RequestAttribute(value = "sort") String sort) {
         if (sort.equals("unread")) {
@@ -92,10 +92,17 @@ public class NotificationController {
     }
 
     @ResponseStatus(HttpStatus.OK)
-    @PutMapping(path = "/mark/read")
-    public void markAllAsRead() {
-        LOG.debug("All notifications have been successfully marked as read.");
-        notificationService.markAllAsRead();
+    @PutMapping(path = "/")
+    public void markAllAsRead(@RequestParam(value = "mark") String mark) {
+        if (mark.equals("read")) {
+            notificationService.markAllAsRead();
+            LOG.debug("All notifications have been successfully marked as read.");
+        } else if (mark.equals("unread")) {
+            notificationService.markAllAsUnread();
+            LOG.debug("All notifications have been successfully marked as read.");
+        } else {
+            throw new ApplicationException(HttpStatus.NOT_FOUND, "Mark type must be specified: read/unread.");
+        }
     }
 
     @ResponseStatus(HttpStatus.OK)
