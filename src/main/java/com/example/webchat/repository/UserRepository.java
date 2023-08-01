@@ -16,4 +16,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
     User findByUsernameContainingIgnoreCaseOrEmailContainingIgnoreCase(String username, String email);
 
     List<User> findAllChatRoomsById(Long id);
+
+    boolean existsByUsername(String username);
+
+    boolean existsByEmail(String email);
 }

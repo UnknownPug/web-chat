@@ -31,7 +31,7 @@ public class ChatRoom {
     private List<User> participants;
 
     @OneToMany(mappedBy = "room")
-    private List<Message> message;
+    private List<Message> messages;
 
 
     public Long getId() {
@@ -67,11 +67,11 @@ public class ChatRoom {
     }
 
     public List<Message> getMessage() {
-        return message;
+        return messages;
     }
 
     public void setMessage(List<Message> message) {
-        this.message = message;
+        this.messages = message;
     }
 
     @Override
@@ -81,7 +81,7 @@ public class ChatRoom {
                 ", name='" + name + '\'' +
                 ", description='" + description + '\'' +
                 ", participants=" + participants +
-                ", message=" + message +
+                ", message=" + messages +
                 '}';
     }
 }

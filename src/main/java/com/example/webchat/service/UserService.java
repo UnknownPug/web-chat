@@ -69,19 +69,26 @@ public class UserService {
 
     public User createUser(String username, String password, String email) {
         User user = new User();
-        user.setUsername(username);
-        user.setPassword(password);
-        user.encodePassword(passwordEncoder);
-        user.setEmail(email);
-        return userRepository.save(user);
+        return setProfileInfo(username, password, email, user);
     }
 
     public User createAdmin(String username, String password, String email) {
         User admin = new User(Role.ADMIN);
+        return setProfileInfo(username, password, email, admin);
+    }
+
+    public User setProfileInfo(String username, String password, String email, User admin) {
+        if (userRepository.existsByUsername(username)) {
+            throw new ApplicationException(HttpStatus.BAD_REQUEST, "The name has already been taken.");
+        }
+        if (userRepository.existsByEmail(email)) {
+            throw new ApplicationException(HttpStatus.BAD_REQUEST, "The email has already been taken.");
+        }
         admin.setUsername(username);
+        admin.setEmail(email);
         admin.setPassword(password);
         admin.encodePassword(passwordEncoder);
-        admin.setEmail(email);
+        admin.setAvatar(null); // default
         return userRepository.save(admin);
     }
 
@@ -92,17 +99,17 @@ public class UserService {
         user.setAvatar(avatar);
         userRepository.save(user);
     }
-    // ------------------------ User Status --------------------------------
-    public void loginUser(String username, String password) {
+    // ------------------------ User Status (Offline/Online) --------------------------------
+    public void loginUser(String username) {
         // Perform login logic
         // ...
         User user = userRepository.findByUsername(username);
         if (user == null) {
             throw new ApplicationException(HttpStatus.NOT_FOUND, "User with username " + username + " not found.");
         }
-        if (!user.getPassword().equals(password)) {
-            throw new ApplicationException(HttpStatus.BAD_REQUEST, "Password is incorrect.");
-        }
+//        if (!user.getPassword().equals(password)) {
+//            throw new ApplicationException(HttpStatus.BAD_REQUEST, "Password is incorrect.");
+//        }
         // Set the user status to ONLINE
         user.setUserStatus(UserStatus.ONLINE);
         userRepository.save(user);
@@ -112,14 +119,14 @@ public class UserService {
         // Perform logout logic
         // ...
         User user = userRepository.findByUsername(username);
-        if (user == null) {
+        if (user == null) { // TODO: Maybe must delete (in future)
             throw new ApplicationException(HttpStatus.NOT_FOUND, "User with username " + username + " not found.");
         }
         // Set the user status to OFFLINE
         user.setUserStatus(UserStatus.OFFLINE);
         userRepository.save(user);
     }
-    // ----------------------------------------------------------------------
+    // ----------------------------------------------------------------------------------------
 
     public void updateUserById(Long id, String username, String password, String email) {
         User user = userRepository.findById(id).orElseThrow(
@@ -151,6 +158,10 @@ public class UserService {
         User user  = userRepository.findById(id).orElseThrow(
                 () -> new ApplicationException(HttpStatus.NOT_FOUND, "User with id " + id + " not found.")
         );
+        if (status == null) {
+            throw new ApplicationException(
+                    HttpStatus.BAD_REQUEST, "Email must be filled completely or this email is already set.");
+        }
         user.setUserStatus(status);
         userRepository.save(user);
     }

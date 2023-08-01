@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import org.springframework.format.annotation.DateTimeFormat;
 
+import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
 
 @Entity
@@ -16,6 +17,7 @@ public class Message {
     private Long id;
 
     @Column(name = "content", nullable = false)
+    @Size(max = 255, min = 5, message = "Message content should be between 5 and 255 characters long.")
     private String content;
 
     @Column(name = "time_stamp", nullable = false)

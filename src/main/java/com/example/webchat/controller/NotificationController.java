@@ -34,7 +34,7 @@ public class NotificationController {
 
     @ResponseStatus(HttpStatus.OK)
     @GetMapping(path = "/{id}")
-    public ResponseEntity<Notification> getNotificationById(@PathVariable Long id) {
+    public ResponseEntity<Notification> getNotificationById(@PathVariable(value = "id") Long id) {
         if (id <= 0) {
             throw new ApplicationException(HttpStatus.NOT_FOUND, "Notification id must be specified.");
         }
@@ -44,13 +44,13 @@ public class NotificationController {
     @ResponseStatus(HttpStatus.OK)
     @GetMapping(path = "/")
     public ResponseEntity<Iterable<Notification>> getUnreadNotifications(
-            @RequestAttribute(value = "sort") String sort) {
+            @RequestParam(value = "sort") String sort) {
         if (sort.equals("unread")) {
             return ResponseEntity.ok(notificationService.getUnreadNotifications());
         } else if (sort.equals("read")) {
             return ResponseEntity.ok(notificationService.getReadNotifications());
         } else {
-            throw new ApplicationException(HttpStatus.NOT_FOUND, "Sort must be specified (read/unread).");
+            throw new ApplicationException(HttpStatus.NOT_FOUND, "Sort must be specified: read/unread.");
         }
     }
 
@@ -74,13 +74,21 @@ public class NotificationController {
         if (notificationRequest.content().isEmpty()) {
             throw new ApplicationException(HttpStatus.NOT_FOUND, "Notification content must be specified.");
         }
+
+        if (notificationRequest.recipientId() == null) {
+            throw new ApplicationException(HttpStatus.NOT_FOUND,
+                    "Recipient not found. Please provide a valid recipient for the notification.");
+        }
         LOG.debug("Notification has been successfully created.");
-        return ResponseEntity.ok(notificationService.createNotification(notificationRequest.content()));
+        return ResponseEntity.ok(notificationService.createNotification(
+                notificationRequest.content(),
+                notificationRequest.recipientId()));
     }
 
     @ResponseStatus(HttpStatus.OK)
     @PutMapping(path = "/{id}")
-    public void updateNotification(@PathVariable Long id, @RequestBody NotificationRequest notificationRequest) {
+    public void updateNotification(@PathVariable(value = "id") Long id,
+                                   @RequestBody NotificationRequest notificationRequest) {
         if (id <= 0) {
             throw new ApplicationException(HttpStatus.NOT_FOUND, "Notification id must be specified.");
         }
@@ -107,7 +115,7 @@ public class NotificationController {
 
     @ResponseStatus(HttpStatus.OK)
     @DeleteMapping(path = "/{id}")
-    public void deleteNotification(@PathVariable Long id) {
+    public void deleteNotification(@PathVariable(value = "id") Long id) {
         if (id <= 0) {
             throw new ApplicationException(HttpStatus.NOT_FOUND, "Notification id must be specified.");
         }
@@ -116,9 +124,12 @@ public class NotificationController {
     }
 
     @ResponseStatus(HttpStatus.OK)
-    @DeleteMapping
-    public void deleteAllNotifications() {
+    @DeleteMapping(path = "/user/{id}")
+    public void deleteAllNotificationsFromUser(@PathVariable(value = "id") Long userId) {
+        if (userId <= 0) {
+            throw new ApplicationException(HttpStatus.NOT_FOUND, "User id must be specified.");
+        }
         LOG.debug("All notifications have been successfully deleted.");
-        notificationService.deleteAllNotifications();
+        notificationService.deleteAllNotificationsFromUser(userId);
     }
 }

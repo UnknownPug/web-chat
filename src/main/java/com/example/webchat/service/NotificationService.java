@@ -1,24 +1,31 @@
 package com.example.webchat.service;
 
 import com.example.webchat.entity.Notification;
+import com.example.webchat.entity.User;
 import com.example.webchat.exception.ApplicationException;
 import com.example.webchat.repository.NotificationRepository;
+import com.example.webchat.repository.UserRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class NotificationService {
 
     private final NotificationRepository notificationRepository;
     private final PaginationService paginationService;
+    private final UserRepository userRepository;
 
     @Autowired
-    public NotificationService(NotificationRepository notificationRepository, PaginationService paginationService) {
+    public NotificationService(NotificationRepository notificationRepository, PaginationService paginationService,
+                               UserRepository userRepository) {
         this.notificationRepository = notificationRepository;
         this.paginationService = paginationService;
+        this.userRepository = userRepository;
     }
 
     public List<Notification> getAllNotifications() {
@@ -44,9 +51,16 @@ public class NotificationService {
         return paginationService.getPaginatedList(allNotifications, limit, offset);
     }
 
-    public Notification createNotification(String content) {
+    public Notification createNotification(String content, Long recipientId) {
         Notification notification = new Notification();
+        User recipient = userRepository.findById(recipientId).orElseThrow(
+                () -> new ApplicationException(HttpStatus.NOT_FOUND, "User with id " + recipientId + " not found.")
+        );
+        if (content.isEmpty()) {
+            throw new ApplicationException(HttpStatus.BAD_REQUEST, "Content must be defined.");
+        }
         notification.setContent(content);
+        notification.setRecipient(recipient);
         return notificationRepository.save(notification);
     }
 
@@ -54,17 +68,21 @@ public class NotificationService {
         Notification notification = notificationRepository.findById(id).orElseThrow(
                 () -> new ApplicationException(HttpStatus.NOT_FOUND, "Notification with id " + id + " not found.")
         );
-        if (content.isEmpty()) {
-            throw new ApplicationException(HttpStatus.BAD_REQUEST, "Notification content must be specified.");
+        if (content != null && !content.isEmpty() && !Objects.equals(notification.getContent(), content)) {
+            notification.setContent(content);
+        } else {
+            throw new ApplicationException(HttpStatus.BAD_REQUEST,
+                    "Notification must be defined or should not be the same as the existing notification.");
         }
-        notification.setContent(content);
         notificationRepository.save(notification);
     }
 
+    @Transactional
     public void markAllAsRead() {
         notificationRepository.updateStatusFromFalseToTrue();
     }
 
+    @Transactional
     public void markAllAsUnread() {
         notificationRepository.updateStatusFromTrueToFalse();
     }
@@ -76,8 +94,11 @@ public class NotificationService {
         notificationRepository.delete(notification);
     }
 
-    public void deleteAllNotifications() {
-        List<Notification> notifications = notificationRepository.findAll();
-        notificationRepository.deleteAll(notifications);
+    public void deleteAllNotificationsFromUser(Long userId) {
+        User user = userRepository.findById(userId).orElseThrow(
+                () -> new ApplicationException(HttpStatus.NOT_FOUND, "User with id " + userId + " not found.")
+        );
+        List<Notification> userNotifications = user.getNotification();
+        notificationRepository.deleteAll(userNotifications);
     }
 }

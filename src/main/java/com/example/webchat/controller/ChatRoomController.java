@@ -37,7 +37,7 @@ public class ChatRoomController {
     @ResponseStatus(HttpStatus.OK)
     @GetMapping(path = "/{id}")
     @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
-    public ResponseEntity<ChatRoom> getChatRoomById(@PathVariable long id) {
+    public ResponseEntity<ChatRoom> getChatRoomById(@PathVariable(value = "id") Long id) {
         if (id <= 0) {
             throw new ApplicationException(HttpStatus.NOT_FOUND, "ChatRoom id must be specified.");
         }
@@ -45,9 +45,9 @@ public class ChatRoomController {
     }
 
     @ResponseStatus(HttpStatus.OK)
-    @GetMapping(path = "/{name}")
+    @GetMapping(path = "/name/{name}")
     @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
-    public ResponseEntity<ChatRoom> getChatRoomByName(@PathVariable String name) {
+    public ResponseEntity<ChatRoom> getChatRoomByName(@PathVariable(value = "name") String name) {
         if (name == null) {
             throw new ApplicationException(HttpStatus.NOT_FOUND, "ChatRoom name must be specified.");
         }
@@ -55,9 +55,9 @@ public class ChatRoomController {
     }
 
     @ResponseStatus(HttpStatus.OK)
-    @GetMapping(path = "/{username}")
+    @GetMapping(path = "/user/{username}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<ChatRoom> getChatRoomByUser(@PathVariable String username) {
+    public ResponseEntity<ChatRoom> getChatRoomByUser(@PathVariable(value = "username") String username) {
         if (username.isEmpty()) {
             throw new ApplicationException(HttpStatus.NOT_FOUND, "User name must be specified.");
         }
@@ -69,19 +69,21 @@ public class ChatRoomController {
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<List<ChatRoom>> getChatRoomBySpecificSort(@RequestParam(value = "filter") String filter,
                                                                 @RequestBody ChatRoomRequest request) {
-        if (filter.equals("messages")) {
+        if (filter.equals("message")) {
             if (request.message().isEmpty()) {
-                throw new ApplicationException(HttpStatus.NOT_FOUND, "ChatRoom message must be specified.");
+                throw new ApplicationException(
+                        HttpStatus.NOT_FOUND, "Message " + request.message() + " not found.");
             }
-            return ResponseEntity.ok(chatRoomService.getChatRoomBySpecificMessages(request.message()));
-        } else if (filter.equals("participants")) {
-            if (request.participants().isEmpty()) {
-                throw new ApplicationException(HttpStatus.NOT_FOUND, "ChatRoom participants be specified.");
+            return ResponseEntity.ok(chatRoomService.getChatRoomsBySpecificMessage(request.message()));
+        } else if (filter.equals("participant")) {
+            if (request.participant().isEmpty()) {
+                  throw new ApplicationException(
+                        HttpStatus.NOT_FOUND, "Participant " + request.participant() + " not found.");
             }
-            return ResponseEntity.ok(chatRoomService.getChatRoomBySpecificParticipants(request.participants()));
+            return ResponseEntity.ok(chatRoomService.getChatRoomsBySpecificParticipant(request.participant()));
         } else {
             throw new ApplicationException(
-                    HttpStatus.NOT_FOUND, "Specific sort must be specified: messages/participants.");
+                    HttpStatus.NOT_FOUND, "Specific sort must be specified: message/participant.");
         }
     }
 
@@ -116,7 +118,7 @@ public class ChatRoomController {
     @PutMapping(path = "/{id}")
     @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
     public void updateChatRoom(
-            @PathVariable Long id,
+            @PathVariable(value = "id") Long id,
             @RequestBody ChatRoomRequest chatRoomRequest) {
         if (id <= 0) {
             throw new ApplicationException(HttpStatus.NOT_FOUND, "ChatRoom id must be specified.");
@@ -131,7 +133,7 @@ public class ChatRoomController {
     @ResponseStatus(HttpStatus.OK)
     @DeleteMapping(path = "/{id}")
     @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
-    public void deleteChatRoom(@PathVariable Long id) {
+    public void deleteChatRoom(@PathVariable(value = "id") Long id) {
         if (id <= 0) {
             throw new ApplicationException(HttpStatus.NOT_FOUND, "ChatRoom id must be specified.");
         }
@@ -142,7 +144,7 @@ public class ChatRoomController {
     @ResponseStatus(HttpStatus.OK)
     @DeleteMapping(path = "/{id}/participants/{userId}")
     @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
-    public void deleteParticipant(@PathVariable long id, @PathVariable long userId) {
+    public void deleteParticipant(@PathVariable(value = "id") Long id, @PathVariable(value = "userId") Long userId) {
         if (id <= 0) {
             throw new ApplicationException(HttpStatus.NOT_FOUND, "ChatRoom id must be specified.");
         }

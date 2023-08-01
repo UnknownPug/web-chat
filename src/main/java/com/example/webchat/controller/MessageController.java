@@ -39,7 +39,7 @@ public class MessageController {
     @ResponseStatus(HttpStatus.OK)
     @GetMapping(path = "/{id}")
     @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
-    public ResponseEntity<Message> getMessageById(@PathVariable Long id) {
+    public ResponseEntity<Message> getMessageById(@PathVariable(value = "id") Long id) {
         if (id <= 0) {
             throw new ApplicationException(HttpStatus.NOT_FOUND, "Message id must be specified.");
         }
@@ -52,7 +52,7 @@ public class MessageController {
     public ResponseEntity<List<Message>> getFilteredMessages(
             @RequestParam(value = "type") String filter,
             @RequestParam(value = "sort", required = false) String sort,
-            @PathVariable Long id
+            @PathVariable(value = "id") Long id
     ) {
         if (filter.equals("chat")) {
             if (id <= 0) {
@@ -92,7 +92,7 @@ public class MessageController {
         }
         if (timestamp != null) {
             return ResponseEntity.ok(messageService.getSortedMessagesByTimeStamp(timestamp));
-        } else if (!keyword.isEmpty()) {
+        } else if (keyword != null) {
             return ResponseEntity.ok(messageService.getSortedMessagesByKeyword(keyword));
         } else if (limit != null && offset != null) {
             return ResponseEntity.ok(messageService.getSortedMessages(limit, offset));
@@ -105,32 +105,36 @@ public class MessageController {
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping
     @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
-    public ResponseEntity<Message> createMessage(@RequestBody MessageRequest messageRequest) {
+    public ResponseEntity<Message> sendMessage(@RequestBody MessageRequest messageRequest) {
         if (messageRequest.content() == null) {
             throw new ApplicationException(HttpStatus.NOT_FOUND, "Message content must be specified.");
         }
         LOG.debug("Message has been successfully created.");
-        return ResponseEntity.ok(messageService.createMessage(messageRequest.content()));
+        return ResponseEntity.ok(messageService.sendMessage(
+                messageRequest.content(),
+                messageRequest.roomId(),
+                messageRequest.senderId()
+        ));
     }
 
     @ResponseStatus(HttpStatus.OK)
     @PutMapping(path = "/{id}")
     @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
-    public void updateMessage(@PathVariable Long id, @RequestBody MessageRequest messageRequest) {
+    public void updateMessage(@PathVariable(value = "id") Long id, @RequestBody MessageRequest messageRequest) {
         if (id <= 0) {
             throw new ApplicationException(HttpStatus.NOT_FOUND, "Message id must be specified.");
         }
         if (messageRequest.content() == null) {
             throw new ApplicationException(HttpStatus.NOT_FOUND, "Message content must be specified.");
         }
+        messageService.updateMessage(id, messageRequest.content());
         LOG.debug("Message been successfully updated.");
-        messageService.updateMessage(messageRequest.id(), messageRequest.content());
     }
 
     @ResponseStatus(HttpStatus.OK)
     @DeleteMapping(path = "/{id}")
     @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
-    public void deleteMessage(@PathVariable Long id) {
+    public void deleteMessage(@PathVariable(value = "id") Long id) {
         if (id <= 0) {
             throw new ApplicationException(HttpStatus.NOT_FOUND, "Message id must be specified.");
         }

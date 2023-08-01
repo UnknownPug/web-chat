@@ -1,7 +1,6 @@
 package com.example.webchat.service;
 
 import com.example.webchat.entity.ChatRoom;
-import com.example.webchat.entity.Message;
 import com.example.webchat.entity.User;
 import com.example.webchat.exception.ApplicationException;
 import com.example.webchat.repository.ChatRoomRepository;
@@ -11,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class ChatRoomService {
@@ -29,7 +29,7 @@ public class ChatRoomService {
         return chatRoomRepository.findAll();
     }
 
-    public ChatRoom getChatRoomById(long id) {
+    public ChatRoom getChatRoomById(Long id) {
         return chatRoomRepository.findById(id).orElseThrow(
                 () -> new ApplicationException(HttpStatus.NOT_FOUND, "Room with id " + id + " not found.")
         );
@@ -51,18 +51,20 @@ public class ChatRoomService {
         return room;
     }
 
-    public List<ChatRoom> getChatRoomBySpecificMessages(List<Message> message) {
-        List<ChatRoom> room = chatRoomRepository.findChatRoomsByMessagesIn(message);
+    public List<ChatRoom> getChatRoomsBySpecificMessage(String message) {
+        List<ChatRoom> room = chatRoomRepository.findBySpecificMessage(message);
         if (room.isEmpty()) {
-            throw new ApplicationException(HttpStatus.NOT_FOUND, "Room with this specific message not found.");
+            throw new ApplicationException(
+                    HttpStatus.NOT_FOUND, "Room with message " + message + " not found.");
         }
         return room;
     }
 
-    public List<ChatRoom> getChatRoomBySpecificParticipants(List<User> participants) {
-        List<ChatRoom> room = chatRoomRepository.findByParticipants(participants);
+    public List<ChatRoom> getChatRoomsBySpecificParticipant(String participant) {
+        List<ChatRoom> room = chatRoomRepository.findBySpecificParticipant(participant);
         if (room.isEmpty()) {
-            throw new ApplicationException(HttpStatus.NOT_FOUND, "Room with this participants not found.");
+            throw new ApplicationException(
+                    HttpStatus.NOT_FOUND, "Room with participant " + participant + " not found.");
         }
         return room;
     }
@@ -82,7 +84,7 @@ public class ChatRoomService {
                 () -> new ApplicationException(HttpStatus.NOT_FOUND, "Room with id " + id + " not found.")
         );
         User user = userRepository.findById(userId).orElseThrow(
-                () -> new ApplicationException(HttpStatus.NOT_FOUND, "User with id " + id + " not found.")
+                () -> new ApplicationException(HttpStatus.NOT_FOUND, "User with id " + userId + " not found.")
         );
         if (room.getUsers().contains(user)) {
             throw new ApplicationException(HttpStatus.BAD_REQUEST, "User is already in this room.");
@@ -93,16 +95,26 @@ public class ChatRoomService {
 
     public void updateChatRoom(Long id, String name, String description) {
         ChatRoom room = chatRoomRepository.findById(id).orElseThrow(
-                () -> new ApplicationException(HttpStatus.BAD_REQUEST, "Room with id " + id + " not found.")
+                () -> new ApplicationException(HttpStatus.NOT_FOUND, "Room with id " + id + " not found.")
         );
-        room.setName(name);
-        room.setDescription(description);
+        if (name != null && !name.isEmpty() && !Objects.equals(room.getName(), name)) {
+            room.setName(name);
+        } else {
+            throw new ApplicationException(HttpStatus.BAD_REQUEST,
+                    "Room name must be defined or should not be the same as the existing name.");
+        }
+        if (description != null && !description.isEmpty() && !Objects.equals(room.getDescription(), description)) {
+            room.setDescription(description);
+        } else {
+            throw new ApplicationException(HttpStatus.BAD_REQUEST,
+                    "Description must be defined or should not be the same as the existing description.");
+        }
         chatRoomRepository.save(room);
     }
 
     public void deleteChatRoom(Long id) {
         ChatRoom room = chatRoomRepository.findById(id).orElseThrow(
-                () -> new ApplicationException(HttpStatus.BAD_REQUEST, "Room with id " + id + " not found.")
+                () -> new ApplicationException(HttpStatus.NOT_FOUND, "Room with id " + id + " not found.")
         );
         chatRoomRepository.delete(room);
     }
@@ -115,7 +127,7 @@ public class ChatRoomService {
                 () -> new ApplicationException(HttpStatus.NOT_FOUND, "User with id " + id + " not found.")
         );
         if (!room.getUsers().contains(user)) {
-            throw new ApplicationException(HttpStatus.BAD_REQUEST, "User is not found in this room.");
+            throw new ApplicationException(HttpStatus.BAD_REQUEST, "User is not in this room.");
         }
         room.getUsers().remove(user);
         chatRoomRepository.save(room);

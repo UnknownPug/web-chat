@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import javax.validation.constraints.Email;
+import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 import java.util.List;
 
@@ -28,7 +29,8 @@ public class User {
     private String username;
 
     @Column(name = "email", nullable = false)
-    @Email
+    @Email(regexp = "[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,3}",
+            flags = Pattern.Flag.CASE_INSENSITIVE, message = "Email must contain valid tags.")
     private String email;
 
     @JsonIgnore
@@ -36,17 +38,17 @@ public class User {
     @Size(max = 30, min = 8, message = "Your password should be greater than 8 and less than 20")
     private String password;
 
-    @Column(name = "avatar", nullable = false)
+    @Column(name = "avatar")
     private String avatar;
 
     @ManyToMany(mappedBy = "participants")
     private List<ChatRoom> chatRoom;
 
     @OneToMany(mappedBy = "sender")
-    private List<Message> message;
+    private List<Message> messages;
 
     @OneToMany(mappedBy = "recipient")
-    private List<Notification> notification;
+    private List<Notification> notifications;
 
     public User() { // default constructor
         this.role = Role.USER;
@@ -131,19 +133,19 @@ public class User {
     }
 
     public List<Message> getMessage() {
-        return message;
+        return messages;
     }
 
     public void setMessage(List<Message> message) {
-        this.message = message;
+        this.messages = message;
     }
 
     public List<Notification> getNotification() {
-        return notification;
+        return notifications;
     }
 
     public void setNotification(List<Notification> notification) {
-        this.notification = notification;
+        this.notifications = notification;
     }
 
     @Override
@@ -157,8 +159,8 @@ public class User {
                 ", status=" + userStatus + '\'' +
                 ", avatar=" + avatar + '\'' +
                 ", chatRoom=" + chatRoom + '\'' +
-                ", message=" + message + '\'' +
-                ", notification=" + notification +
+                ", message=" + messages + '\'' +
+                ", notification=" + notifications +
                 '}';
     }
 }

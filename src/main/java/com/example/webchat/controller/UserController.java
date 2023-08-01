@@ -2,7 +2,6 @@ package com.example.webchat.controller;
 
 import com.example.webchat.dto.request.UserRequest;
 import com.example.webchat.entity.User;
-import com.example.webchat.entity.UserStatus;
 import com.example.webchat.exception.ApplicationException;
 import com.example.webchat.service.UserService;
 import org.slf4j.Logger;
@@ -36,7 +35,7 @@ public class UserController {
     @ResponseStatus(HttpStatus.OK)
     @GetMapping(path = "/{id}")
     @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_USER')")
-    public ResponseEntity<User> getUserById(@PathVariable Long id) {
+    public ResponseEntity<User> getUserById(@PathVariable(value = "id") Long id) {
         if (id <= 0) {
             throw new ApplicationException(HttpStatus.NOT_FOUND, "User id must be specified.");
         }
@@ -44,9 +43,9 @@ public class UserController {
     }
 
     @ResponseStatus(HttpStatus.OK)
-    @GetMapping(path = "/{username}")
+    @GetMapping(path = "/name/{username}")
     @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_USER')")
-    public ResponseEntity<User> getUserByUsername(@PathVariable String username) {
+    public ResponseEntity<User> getUserByUsername(@PathVariable(value = "username") String username) {
         if (username == null) {
             throw new ApplicationException(HttpStatus.NOT_FOUND, "Username must be specified.");
         }
@@ -54,9 +53,9 @@ public class UserController {
     }
 
     @ResponseStatus(HttpStatus.OK)
-    @GetMapping(path = "/{email}")
+    @GetMapping(path = "/email/{email}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<User> getUserByEmail(@PathVariable String email) {
+    public ResponseEntity<User> getUserByEmail(@PathVariable(value = "email") String email) {
         if (email == null) {
             throw new ApplicationException(HttpStatus.NOT_FOUND, "Email must be specified.");
         }
@@ -128,15 +127,17 @@ public class UserController {
     // TODO: After should be used in React.js for demonstrating user status (online/offline)
     @ResponseStatus(HttpStatus.OK)
     @PostMapping("/login")
-    public void login(@RequestBody UserRequest userRequest) {
-        userService.loginUser(userRequest.username(), userRequest.password());
+    @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
+    public ResponseEntity<Void> login(@RequestBody UserRequest userRequest) {
+        userService.loginUser(userRequest.username());
+        return ResponseEntity.ok().build();
     }
 
     @ResponseStatus(HttpStatus.OK)
     @PostMapping("/logout")
     @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_USER')")
-    public ResponseEntity<Void> logout(@RequestParam String username) {
-        userService.logoutUser(username);
+    public ResponseEntity<Void> logout(@RequestBody UserRequest userRequest) {
+        userService.logoutUser(userRequest.username());
         return ResponseEntity.ok().build();
     }
     // ------------------------------------------------------
@@ -144,7 +145,7 @@ public class UserController {
     @ResponseStatus(HttpStatus.OK)
     @PutMapping(path = "/{id}")
     @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_USER')")
-    public void updateUserById(@PathVariable Long id, UserRequest userRequest) {
+    public void updateUserById(@PathVariable Long id, @RequestBody UserRequest userRequest) {
         if (id <= 0) {
             throw new ApplicationException(HttpStatus.NOT_FOUND, "User id must be specified.");
         }
@@ -153,18 +154,18 @@ public class UserController {
                 userRequest.email() == null) {
             throw new ApplicationException(HttpStatus.BAD_REQUEST, "Username, password and email must be specified.");
         }
-        userService.updateUserById((id), userRequest.username(), userRequest.password(), userRequest.email());
+        userService.updateUserById(id, userRequest.username(), userRequest.password(), userRequest.email());
         LOG.debug("User {} has been successfully updated.", userRequest.username());
     }
 
     @ResponseStatus(HttpStatus.OK)
     @PutMapping(path = "/{id}/status")
     @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_USER')")
-    public void updateUserStatusById(@PathVariable Long id, @RequestParam UserStatus status) {
+    public void updateUserStatusById(@PathVariable Long id, @RequestBody UserRequest userRequest) {
         if (id <= 0) {
             throw new ApplicationException(HttpStatus.NOT_FOUND, "User id must be specified.");
         }
-        userService.updateUserStatusById(id, status);
+        userService.updateUserStatusById(id, userRequest.status());
         LOG.debug("User status has been successfully updated.");
     }
 

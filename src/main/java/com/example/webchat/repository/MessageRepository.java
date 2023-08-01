@@ -15,11 +15,11 @@ public interface MessageRepository extends JpaRepository<Message, Long> {
 
     List<Message> findAllByIdOrderByTimeStampDesc(Long id);
 
-    @Query(value = "SELECT m FROM Message AS m WHERE m.room = :id ORDER BY m.timeStamp ASC")
+    @Query(value = "SELECT m FROM Message AS m WHERE m.room.id = :id ORDER BY m.timeStamp ASC")
     List<Message> findAllForChatWithIdOrderByTimeStampAsc(Long id);
 
     List<Message> findAllByTimeStamp(LocalDateTime time);
 
     @Query("SELECT m FROM Message AS m WHERE LOWER(m.content) LIKE %:keyword%")
-    List<Message> findMessagesByKeyword(String keyword);
+    List<Message> findAllMessagesByKeyword(String keyword);
 }
