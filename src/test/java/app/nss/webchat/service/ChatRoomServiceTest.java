@@ -114,13 +114,15 @@ public class ChatRoomServiceTest {
         ChatRoom room1 = new ChatRoom();
         room1.setId(1L);
         room1.setName("Room 1");
+        List<ChatRoom> rooms = new ArrayList<>();
+        rooms.add(room1);
         when(chatRoomRepository.findByUserName(userName)).thenReturn(room1);
 
         // Act
-        ChatRoom actualChatRoom = chatRoomService.getChatRoomByUser(userName);
+        List<ChatRoom> actualChatRoom = chatRoomService.getAllChatRoomsByUserName(userName);
 
         // Assert
-        assertEquals(room1, actualChatRoom);
+        assertEquals(rooms, actualChatRoom);
     }
 
     @Test(expected = ApplicationException.class)
@@ -130,7 +132,7 @@ public class ChatRoomServiceTest {
         when(chatRoomRepository.findByUserName(userName)).thenReturn(null);
 
         // Act
-        chatRoomService.getChatRoomByUser(userName);
+        chatRoomService.getAllChatRoomsByUserName(userName);
     }
 
     @Test

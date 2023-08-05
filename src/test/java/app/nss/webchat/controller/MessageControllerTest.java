@@ -15,7 +15,6 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -99,35 +98,6 @@ public class MessageControllerTest {
         mockMvc.perform(get("/message/filter/{id}", userId)
                         .param("type", "user")
                         .param("sort", "desc")
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$").isArray())
-                .andExpect(jsonPath("$.length()").value(messages.size()));
-    }
-
-    @Test
-    @WithMockUser(roles = "USER")
-    public void testGetSortedMessages_ByTimestamp_ValidRequest() throws Exception {
-        // Arrange
-        LocalDateTime timestamp = LocalDateTime.of(2023, 7, 31, 12, 0);
-        List<Message> messages = new ArrayList<>();
-
-        Message message1 = new Message();
-        Message message2 = new Message();
-
-        message1.setId(1L);
-        message1.setContent("Hello, world!");
-
-        message2.setId(2L);
-        message2.setContent("How are you?");
-
-        messages.add(message1);
-        messages.add(message2);
-        when(messageService.getSortedMessagesByTimeStamp(timestamp)).thenReturn(messages);
-
-        // Act and Assert
-        mockMvc.perform(get("/message/sort")
-                        .param("timestamp", "2023-07-31T12:00:00")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").isArray())

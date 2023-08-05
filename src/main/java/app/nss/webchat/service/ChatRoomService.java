@@ -8,6 +8,9 @@ import app.nss.webchat.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.CacheEvict;
 
 import java.util.List;
 import java.util.Objects;
@@ -25,16 +28,19 @@ public class ChatRoomService {
         this.userRepository = userRepository;
     }
 
+    @Cacheable(value = "chatRoomsCache", key = "{#root.methodName, #root.args}")
     public List<ChatRoom> getChatRooms() {
         return chatRoomRepository.findAll();
     }
 
+    @Cacheable(value = "chatRoomsCache", key = "{#root.methodName, #root.args}")
     public ChatRoom getChatRoomById(Long id) {
         return chatRoomRepository.findById(id).orElseThrow(
                 () -> new ApplicationException(HttpStatus.NOT_FOUND, "Room with id " + id + " not found.")
         );
     }
 
+    @Cacheable(value = "chatRoomsCache", key = "{#root.methodName, #root.args}")
     public ChatRoom getChatRoomByName(String name) {
         ChatRoom room = chatRoomRepository.findByName(name);
         if (room == null) {
@@ -43,14 +49,12 @@ public class ChatRoomService {
         return room;
     }
 
-    public ChatRoom getChatRoomByUser(String name) {
-        ChatRoom room = chatRoomRepository.findByUserName(name);
-        if (room == null) {
-            throw new ApplicationException(HttpStatus.NOT_FOUND, "User with name " + name + " not found.");
-        }
-        return room;
+    @Cacheable(value = "chatRoomsCache", key = "{#root.methodName, #root.args}")
+    public List<ChatRoom> getAllChatRoomsByUserName(String name) {
+        return chatRoomRepository.findAllByParticipantsUsername(name);
     }
 
+    @Cacheable(value = "chatRoomsCache", key = "{#root.methodName, #root.args}")
     public List<ChatRoom> getChatRoomsBySpecificMessage(String message) {
         List<ChatRoom> room = chatRoomRepository.findBySpecificMessage(message);
         if (room.isEmpty()) {
@@ -60,6 +64,7 @@ public class ChatRoomService {
         return room;
     }
 
+    @Cacheable(value = "chatRoomsCache", key = "{#root.methodName, #root.args}")
     public List<ChatRoom> getChatRoomsBySpecificParticipant(String participant) {
         List<ChatRoom> room = chatRoomRepository.findBySpecificParticipant(participant);
         if (room.isEmpty()) {
@@ -69,6 +74,7 @@ public class ChatRoomService {
         return room;
     }
 
+    @CachePut(value = "chatRoomsCache", key = "#result.id")
     public ChatRoom createChatRoom(String name, String description) {
         ChatRoom room = new ChatRoom();
         if (name.isEmpty() || description.isEmpty()) {
@@ -79,6 +85,8 @@ public class ChatRoomService {
         return chatRoomRepository.save(room);
     }
 
+    @CacheEvict(value = "chatRoomsCache", key = "#id")
+    @CachePut(value = "chatRoomsCache", key = "#id")
     public void addParticipant(long id, Long userId) {
         ChatRoom room = chatRoomRepository.findById(id).orElseThrow(
                 () -> new ApplicationException(HttpStatus.NOT_FOUND, "Room with id " + id + " not found.")
@@ -93,6 +101,8 @@ public class ChatRoomService {
         chatRoomRepository.save(room);
     }
 
+    @CacheEvict(value = "chatRoomsCache", key = "#id")
+    @CachePut(value = "chatRoomsCache", key = "#id")
     public void updateChatRoom(Long id, String name, String description) {
         ChatRoom room = chatRoomRepository.findById(id).orElseThrow(
                 () -> new ApplicationException(HttpStatus.NOT_FOUND, "Room with id " + id + " not found.")
@@ -112,6 +122,7 @@ public class ChatRoomService {
         chatRoomRepository.save(room);
     }
 
+    @CacheEvict(value = "chatRoomsCache", key = "#id")
     public void deleteChatRoom(Long id) {
         ChatRoom room = chatRoomRepository.findById(id).orElseThrow(
                 () -> new ApplicationException(HttpStatus.NOT_FOUND, "Room with id " + id + " not found.")
@@ -119,6 +130,7 @@ public class ChatRoomService {
         chatRoomRepository.delete(room);
     }
 
+    @CacheEvict(value = "chatRoomsCache", key = "#id")
     public void deleteParticipant(long id, long userId) {
         ChatRoom room = chatRoomRepository.findById(id).orElseThrow(
                 () -> new ApplicationException(HttpStatus.NOT_FOUND, "Room with id " + id + " not found.")

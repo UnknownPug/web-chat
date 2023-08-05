@@ -43,43 +43,14 @@ public class UserController {
     }
 
     @ResponseStatus(HttpStatus.OK)
-    @GetMapping(path = "/name/{username}")
-    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_USER')")
-    public ResponseEntity<User> getUserByUsername(@PathVariable(value = "username") String username) {
-        if (username == null) {
-            throw new ApplicationException(HttpStatus.NOT_FOUND, "Username must be specified.");
-        }
-        return ResponseEntity.ok(userService.getUserByUsername(username));
-    }
-
-    @ResponseStatus(HttpStatus.OK)
-    @GetMapping(path = "/email/{email}")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<User> getUserByEmail(@PathVariable(value = "email") String email) {
-        if (email == null) {
-            throw new ApplicationException(HttpStatus.NOT_FOUND, "Email must be specified.");
-        }
-        return ResponseEntity.ok(userService.getUserByEmail(email));
-    }
-
-    @ResponseStatus(HttpStatus.OK)
     @GetMapping(path = "/search")
     @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_USER')")
-    public ResponseEntity<User> getUserByKeyword(@RequestParam(value = "keyword") String keyword) {
-        if (keyword == null) {
-            throw new ApplicationException(HttpStatus.NOT_FOUND, "Keyword must be specified.");
+    public ResponseEntity<User> getUserByUserIdentifier(@RequestParam(value = "identifier") String identifier) {
+        if (identifier == null) {
+            throw new ApplicationException(
+                    HttpStatus.NOT_FOUND, "You must specify user identifier: email/username");
         }
-        return ResponseEntity.ok(userService.getUserByKeyword(keyword));
-    }
-
-    @ResponseStatus(HttpStatus.OK)
-    @GetMapping(path = "/{id}/chat-rooms")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<Iterable<User>> getChatRoomsByUserId(@PathVariable Long id) {
-        if (id <= 0) {
-            throw new ApplicationException(HttpStatus.NOT_FOUND, "User id must be specified.");
-        }
-        return ResponseEntity.ok(userService.getChatRoomsByUserId(id));
+        return ResponseEntity.ok(userService.getUserByUserIdentifier(identifier));
     }
 
     @ResponseStatus(HttpStatus.CREATED)

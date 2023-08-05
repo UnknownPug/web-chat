@@ -10,13 +10,15 @@ public class PaginationService {
 
     public <T> List<T> getPaginatedList(List<T> allItems, int limit, int offset) {
         int totalItems = allItems.size();
-        int startIndex = offset * limit;
-        int endIndex = Math.min(startIndex + limit, totalItems);
+        int endIndex = Math.min(offset + limit, totalItems);
 
-        if (startIndex >= totalItems || startIndex < 0) {
-            return Collections.emptyList(); // Offset is out of range or negative
+        if (offset >= totalItems || offset < 0) {
+            return Collections.emptyList();
         }
-        return allItems.subList(startIndex, endIndex);
+
+        endIndex = Math.min(endIndex, totalItems);
+
+        return allItems.subList(offset, endIndex);
     }
 }
 

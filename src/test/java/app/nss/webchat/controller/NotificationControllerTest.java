@@ -93,7 +93,7 @@ public class NotificationControllerTest {
         mockMvc.perform(get("/notifications/")
                         .param("sort", invalidSort)
                         .accept(MediaType.APPLICATION_JSON)) // Use accept() for response format
-                .andExpect(status().isNotFound());
+                .andExpect(status().isBadRequest());
     }
 
     @Test

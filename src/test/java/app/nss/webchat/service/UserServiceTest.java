@@ -54,16 +54,6 @@ public class UserServiceTest {
         assertThrows(ApplicationException.class, () -> userService.getUserById(userId));
     }
 
-    // Test getChatRoomsByUserId method - user not found
-    @Test
-    public void testGetChatRoomsByUserId_UserNotFound() {
-        Long userId = 99L;
-        // Mock the behavior of userRepository.findById()
-        when(userRepository.findById(userId)).thenReturn(Optional.empty());
-
-        assertThrows(ApplicationException.class, () -> userService.getChatRoomsByUserId(userId));
-    }
-
     // Test updateUserById method - empty username
     @Test
     public void testUpdateUserById_EmptyUsername() {

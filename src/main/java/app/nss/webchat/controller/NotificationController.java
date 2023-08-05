@@ -43,12 +43,12 @@ public class NotificationController {
 
     @ResponseStatus(HttpStatus.OK)
     @GetMapping(path = "/")
-    public ResponseEntity<Iterable<Notification>> getUnreadNotifications(
-            @RequestParam(value = "sort") String sort) {
+    public ResponseEntity<Iterable<Notification>> getNotificationsSort(
+            @RequestParam(value = "sort") String sort, @RequestBody NotificationRequest request) {
         if (sort.equals("unread")) {
-            return ResponseEntity.ok(notificationService.getUnreadNotifications());
+            return ResponseEntity.ok(notificationService.getUnreadNotifications(request.recipientId()));
         } else if (sort.equals("read")) {
-            return ResponseEntity.ok(notificationService.getReadNotifications());
+            return ResponseEntity.ok(notificationService.getReadNotifications(request.recipientId()));
         } else {
             throw new ApplicationException(HttpStatus.NOT_FOUND, "Sort must be specified: read/unread.");
         }
@@ -59,11 +59,8 @@ public class NotificationController {
     public ResponseEntity<Iterable<Notification>> getPaginationNotifications(
             @RequestParam(value = "limit") int limit,
             @RequestParam(value = "offset") int offset) {
-        if (limit <= 0) {
-            throw new ApplicationException(HttpStatus.NOT_FOUND, "Limit must be specified.");
-        }
-        if (offset <= 0) {
-            throw new ApplicationException(HttpStatus.NOT_FOUND, "Offset must be specified.");
+        if (limit <= 0 || offset < 0) {
+            throw new ApplicationException(HttpStatus.NOT_FOUND, "Limit and offset must be specified.");
         }
         return ResponseEntity.ok(notificationService.getPaginationNotifications(limit, offset));
     }
@@ -74,7 +71,6 @@ public class NotificationController {
         if (notificationRequest.content().isEmpty()) {
             throw new ApplicationException(HttpStatus.NOT_FOUND, "Notification content must be specified.");
         }
-
         if (notificationRequest.recipientId() == null) {
             throw new ApplicationException(HttpStatus.NOT_FOUND,
                     "Recipient not found. Please provide a valid recipient for the notification.");
@@ -101,12 +97,13 @@ public class NotificationController {
 
     @ResponseStatus(HttpStatus.OK)
     @PutMapping(path = "/")
-    public void markAllAsRead(@RequestParam(value = "mark") String mark) {
+    public void markAllNotificationsSort(@RequestParam(value = "mark") String mark,
+                                         @RequestBody NotificationRequest request) {
         if (mark.equals("read")) {
-            notificationService.markAllAsRead();
+            notificationService.markAllAsRead(request.recipientId());
             LOG.debug("All notifications have been successfully marked as read.");
         } else if (mark.equals("unread")) {
-            notificationService.markAllAsUnread();
+            notificationService.markAllAsUnread(request.recipientId());
             LOG.debug("All notifications have been successfully marked as read.");
         } else {
             throw new ApplicationException(HttpStatus.NOT_FOUND, "Mark type must be specified: read/unread.");

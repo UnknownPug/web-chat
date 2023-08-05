@@ -144,7 +144,8 @@ public class ChatRoomControllerTest {
         // Arrange
         String emptyUsername = "";
 
-        when(chatRoomService.getChatRoomByUser(emptyUsername)).thenThrow(new ApplicationException(HttpStatus.NOT_FOUND, "User name must be specified."));
+        when(chatRoomService.getAllChatRoomsByUserName(emptyUsername)).thenThrow(
+                new ApplicationException(HttpStatus.NOT_FOUND, "User name must be specified."));
 
         // Act
         ResultActions resultActions = mockMvc.perform(get("/chat-rooms/user/{username}", emptyUsername)

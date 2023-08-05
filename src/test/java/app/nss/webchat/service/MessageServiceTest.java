@@ -7,18 +7,17 @@ import app.nss.webchat.exception.ApplicationException;
 import app.nss.webchat.repository.ChatRoomRepository;
 import app.nss.webchat.repository.MessageRepository;
 import app.nss.webchat.repository.UserRepository;
-import org.springframework.boot.test.context.SpringBootTest;
-
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.springframework.boot.test.context.SpringBootTest;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
 
@@ -94,7 +93,7 @@ public class MessageServiceTest {
 
         // Mocking the behavior of messageRepository.findAllByIdOrderByTimeStampAsc()
         List<Message> mockMessages = getMessages(userId);
-        when(messageRepository.findAllByIdOrderByTimeStampAsc(userId)).thenReturn(mockMessages);
+        when(messageRepository.findAllBySenderIdOrderByTimeStampAsc(userId)).thenReturn(mockMessages);
 
         List<Message> messages = messageService.getSortedMessagesForUserAsc(userId);
 
@@ -132,7 +131,7 @@ public class MessageServiceTest {
         // Mocking the behavior of messageRepository.findAllByIdOrderByTimeStampDesc()
         List<Message> mockMessages = getMessages(userId);
 
-        when(messageRepository.findAllByIdOrderByTimeStampDesc(userId)).thenReturn(mockMessages);
+        when(messageRepository.findAllBySenderIdOrderByTimeStampDesc(userId)).thenReturn(mockMessages);
 
         List<Message> messages = messageService.getSortedMessagesForUserDesc(userId);
 
@@ -177,64 +176,6 @@ public class MessageServiceTest {
         mockMessages.add(message1);
         mockMessages.add(message2);
         return mockMessages;
-    }
-
-    @Test
-    public void testGetSortedMessagesByTimeStamp() {
-        LocalDateTime timestamp = LocalDateTime.of(2023, 8, 1, 12, 0);
-
-        // Mocking the behavior of messageRepository.findAllByTimeStamp()
-        List<Message> mockMessages = new ArrayList<>();
-        Message message1 = new Message();
-        Message message2 = new Message();
-
-        message1.setId(1L);
-        message1.setContent("Hello");
-        message1.setTimeStamp(timestamp);
-
-        message2.setId(2L);
-        message2.setContent("Hi");
-        message2.setTimeStamp(timestamp);
-
-        mockMessages.add(message1);
-        mockMessages.add(message2);
-
-        when(messageRepository.findAllByTimeStamp(timestamp)).thenReturn(mockMessages);
-
-        List<Message> messages = messageService.getSortedMessagesByTimeStamp(timestamp);
-
-        // Assertions
-        assertEquals(mockMessages.size(), messages.size());
-        assertEquals(mockMessages.get(0).getContent(), messages.get(0).getContent());
-        assertEquals(mockMessages.get(1).getId(), messages.get(1).getId());
-    }
-
-    @Test
-    public void testGetSortedMessagesByKeyword() {
-        String keyword = "Hello";
-
-        // Mocking the behavior of messageRepository.findAllMessagesByKeyword()
-        List<Message> mockMessages = new ArrayList<>();
-        Message message1 = new Message();
-        Message message2 = new Message();
-
-        message1.setId(1L);
-        message1.setContent("Hello");
-
-        message2.setId(2L);
-        message2.setContent("Hi");
-
-        mockMessages.add(message1);
-        mockMessages.add(message2);
-
-        when(messageRepository.findAllMessagesByKeyword(keyword)).thenReturn(mockMessages);
-
-        List<Message> messages = messageService.getSortedMessagesByKeyword(keyword);
-
-        // Assertions
-        assertEquals(mockMessages.size(), messages.size());
-        assertEquals(mockMessages.get(0).getContent(), messages.get(0).getContent());
-        assertEquals(mockMessages.get(1).getId(), messages.get(1).getId());
     }
 
     @Test

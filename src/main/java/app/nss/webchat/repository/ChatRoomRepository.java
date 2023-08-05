@@ -13,6 +13,8 @@ public interface ChatRoomRepository extends JpaRepository<ChatRoom, Long> {
 
     ChatRoom findByName(String name);
 
+    List<ChatRoom> findAllByParticipantsUsername(String name);
+
     @Query(value = "SELECT c FROM ChatRoom AS c JOIN c.participants AS p WHERE p.username = :name")
     ChatRoom findByUserName(@Param("name") String name);
 

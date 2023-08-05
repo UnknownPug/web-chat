@@ -41,12 +41,15 @@ public class User {
     @Column(name = "avatar")
     private String avatar;
 
+    @JsonIgnore
     @ManyToMany(mappedBy = "participants")
     private List<ChatRoom> chatRoom;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "sender")
     private List<Message> messages;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "recipient")
     private List<Notification> notifications;
 

@@ -1,6 +1,7 @@
 package app.nss.webchat.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import org.springframework.format.annotation.DateTimeFormat;
 
@@ -10,6 +11,9 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "notification")
 public class Notification {
+
+    @Enumerated(EnumType.STRING)
+    private NotificationStatus status;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -21,13 +25,11 @@ public class Notification {
     private String content;
 
     @Column(name = "time_stamp", nullable = false)
-    @DateTimeFormat(pattern = "yyyy-MM-ddTHH:mm", iso = DateTimeFormat.ISO.DATE_TIME)
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-ddTHH:mm")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm", iso = DateTimeFormat.ISO.DATE_TIME)
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm")
     private LocalDateTime timeStamp;
 
-    @Column(name = "status", nullable = false)
-    private Boolean status;
-
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "recipient", nullable = false)
     private User recipient;
@@ -56,11 +58,11 @@ public class Notification {
         this.timeStamp = timeStamp;
     }
 
-    public Boolean getStatus() {
+    public NotificationStatus getStatus() {
         return status;
     }
 
-    public void setStatus(Boolean status) {
+    public void setStatus(NotificationStatus status) {
         this.status = status;
     }
 

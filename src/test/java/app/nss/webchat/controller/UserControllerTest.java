@@ -94,25 +94,6 @@ public class UserControllerTest {
 
     @Test
     @WithMockUser(roles = "ADMIN")
-    public void testGetUserByUsername_ValidRequest() throws Exception {
-        // Arrange
-        String username = "user1";
-        User user = new User();
-        user.setId(1L);
-        user.setUsername(username);
-
-        when(userService.getUserByUsername(username)).thenReturn(user);
-
-        // Act and Assert
-        mockMvc.perform(get("/users/name/{username}", username)
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(user.getId()))
-                .andExpect(jsonPath("$.username").value(user.getUsername()));
-    }
-
-    @Test
-    @WithMockUser(roles = "ADMIN")
     public void testGetUserByUsername_InvalidUsername() throws Exception {
 
         // Act and Assert
@@ -123,51 +104,12 @@ public class UserControllerTest {
 
     @Test
     @WithMockUser(roles = "ADMIN")
-    public void testGetUserByEmail_ValidRequest() throws Exception {
-        // Arrange
-        String email = "user@example.com";
-        User user = new User();
-        user.setId(1L);
-        user.setEmail(email);
-
-        when(userService.getUserByEmail(email)).thenReturn(user);
-
-        // Act and Assert
-        mockMvc.perform(get("/users/email/{email}", email)
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(user.getId()))
-                .andExpect(jsonPath("$.email").value(user.getEmail()));
-    }
-
-    @Test
-    @WithMockUser(roles = "ADMIN")
     public void testGetUserByEmail_InvalidEmail() throws Exception {
 
         // Act and Assert
         mockMvc.perform(get("/users/email/{email}", (Object) null)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
-    }
-
-    @Test
-    @WithMockUser(roles = "USER")
-    public void testGetUserByKeyword_ValidRequest() throws Exception {
-        // Arrange
-        String keyword = "john";
-        User user = new User();
-        user.setId(1L);
-        user.setUsername("john_doe");
-
-        when(userService.getUserByKeyword(keyword)).thenReturn(user);
-
-        // Act and Assert
-        mockMvc.perform(get("/users/search")
-                        .param("keyword", keyword)
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(user.getId()))
-                .andExpect(jsonPath("$.username").value(user.getUsername()));
     }
 
     @Test

@@ -13,8 +13,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import java.util.List;
 import java.util.Optional;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
-import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 public class NotificationServiceTest {
@@ -151,21 +152,35 @@ public class NotificationServiceTest {
     }
 
     @Test
-    public void testMarkAllAsRead() {
-        // Call the service method
-        notificationService.markAllAsRead();
+    public void testMarkAllAsRead_RecipientNotFound() {
+        Long recipientId = 1L;
 
-        // Verify the repository method to update status from false to true was called
-        verify(notificationRepository).updateStatusFromFalseToTrue();
+        // Mock the findById method to return an empty Optional
+        when(notificationRepository.findById(recipientId))
+                .thenReturn(Optional.empty());
+
+        // Call the method and expect an ApplicationException to be thrown
+        assertThrows(ApplicationException.class, () -> notificationService.markAllAsRead(recipientId));
+
+        // Verify that updateStatus is not called
+        verify(notificationRepository, never())
+                .updateStatus(any(), any(), any());
     }
 
     @Test
-    public void testMarkAllAsUnread() {
-        // Call the service method
-        notificationService.markAllAsUnread();
+    public void testMarkAllAsUnread_RecipientNotFound() {
+        Long recipientId = 1L;
 
-        // Verify the repository method to update status from true to false was called
-        verify(notificationRepository).updateStatusFromTrueToFalse();
+        // Mock the findById method to return an empty Optional
+        when(notificationRepository.findById(recipientId))
+                .thenReturn(Optional.empty());
+
+        // Call the method and expect an ApplicationException to be thrown
+        assertThrows(ApplicationException.class, () -> notificationService.markAllAsUnread(recipientId));
+
+        // Verify that updateStatus is not called
+        verify(notificationRepository, never())
+                .updateStatus(any(), any(), any());
     }
 
     @Test

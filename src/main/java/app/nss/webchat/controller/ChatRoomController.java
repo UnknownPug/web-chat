@@ -57,18 +57,19 @@ public class ChatRoomController {
     @ResponseStatus(HttpStatus.OK)
     @GetMapping(path = "/user/{username}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<ChatRoom> getChatRoomByUser(@PathVariable(value = "username") String username) {
+    public ResponseEntity<Iterable<ChatRoom>> getAllChatRoomsByUserName(
+            @PathVariable(value = "username") String username) {
         if (username.isEmpty()) {
             throw new ApplicationException(HttpStatus.NOT_FOUND, "User name must be specified.");
         }
-        return ResponseEntity.ok(chatRoomService.getChatRoomByUser(username));
+        return ResponseEntity.ok(chatRoomService.getAllChatRoomsByUserName(username));
     }
 
     @ResponseStatus(HttpStatus.OK)
     @GetMapping(path = "/")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<List<ChatRoom>> getChatRoomBySpecificSort(@RequestParam(value = "filter") String filter,
-                                                                @RequestBody ChatRoomRequest request) {
+                                                                    @RequestBody ChatRoomRequest request) {
         if (filter.equals("message")) {
             if (request.message().isEmpty()) {
                 throw new ApplicationException(
@@ -77,7 +78,7 @@ public class ChatRoomController {
             return ResponseEntity.ok(chatRoomService.getChatRoomsBySpecificMessage(request.message()));
         } else if (filter.equals("participant")) {
             if (request.participant().isEmpty()) {
-                  throw new ApplicationException(
+                throw new ApplicationException(
                         HttpStatus.NOT_FOUND, "Participant " + request.participant() + " not found.");
             }
             return ResponseEntity.ok(chatRoomService.getChatRoomsBySpecificParticipant(request.participant()));

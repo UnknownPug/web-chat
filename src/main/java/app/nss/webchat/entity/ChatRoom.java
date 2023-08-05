@@ -1,5 +1,6 @@
 package app.nss.webchat.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import javax.validation.constraints.Size;
@@ -22,6 +23,7 @@ public class ChatRoom {
     @Size(max = 255, min = 2, message = "Your room description should be greater than 2 and less than 255")
     private String description;
 
+    @JsonIgnore
     @ManyToMany
     @JoinTable(
         name = "participants",
@@ -30,6 +32,7 @@ public class ChatRoom {
     )
     private List<User> participants;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "room")
     private List<Message> messages;
 

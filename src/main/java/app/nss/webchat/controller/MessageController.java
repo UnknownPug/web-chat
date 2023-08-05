@@ -13,7 +13,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -75,23 +74,15 @@ public class MessageController {
         }
     }
 
-    @ResponseStatus(HttpStatus.OK)
     @GetMapping(path = "/sort")
     @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_USER')")
     public ResponseEntity<List<Message>> getSortedMessages(
             @RequestParam(value = "limit", required = false) Integer limit,
             @RequestParam(value = "offset", required = false) Integer offset,
-            @RequestParam(value = "timestamp", required = false) LocalDateTime timestamp,
             @RequestParam(value = "keyword", required = false) String keyword
     ) {
-        if (limit != null && limit <= 0) {
-            throw new ApplicationException(HttpStatus.NOT_FOUND, "Limit must be specified.");
-        }
-        if (offset != null && offset <= 0) {
-            throw new ApplicationException(HttpStatus.NOT_FOUND, "Offset must be specified.");
-        }
-        if (timestamp != null) {
-            return ResponseEntity.ok(messageService.getSortedMessagesByTimeStamp(timestamp));
+        if ((limit != null && limit <= 0) || (offset != null && offset < 0)) {
+            throw new ApplicationException(HttpStatus.NOT_FOUND, "Limit and offset must be specified.");
         } else if (keyword != null) {
             return ResponseEntity.ok(messageService.getSortedMessagesByKeyword(keyword));
         } else if (limit != null && offset != null) {
