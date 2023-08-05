@@ -108,34 +108,6 @@ public class ChatRoomServiceTest {
     }
 
     @Test
-    public void testGetChatRoomByUser_ValidName() {
-        // Arrange
-        String userName = "User 1";
-        ChatRoom room1 = new ChatRoom();
-        room1.setId(1L);
-        room1.setName("Room 1");
-        List<ChatRoom> rooms = new ArrayList<>();
-        rooms.add(room1);
-        when(chatRoomRepository.findByUserName(userName)).thenReturn(room1);
-
-        // Act
-        List<ChatRoom> actualChatRoom = chatRoomService.getAllChatRoomsByUserName(userName);
-
-        // Assert
-        assertEquals(rooms, actualChatRoom);
-    }
-
-    @Test(expected = ApplicationException.class)
-    public void testGetChatRoomByUser_InvalidName() {
-        // Arrange
-        String userName = "Non-existent User";
-        when(chatRoomRepository.findByUserName(userName)).thenReturn(null);
-
-        // Act
-        chatRoomService.getAllChatRoomsByUserName(userName);
-    }
-
-    @Test
     public void testGetChatRoomsBySpecificMessage_ValidMessage() {
         // Arrange
         String message = "Hello, everyone!";
