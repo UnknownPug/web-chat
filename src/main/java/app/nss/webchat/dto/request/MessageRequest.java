@@ -10,4 +10,6 @@ public record MessageRequest(
         Long senderId,
         String content,
         @JsonProperty("time_stamp")
-        LocalDateTime timeStamp) {}
+        LocalDateTime timeStamp
+) {
+}

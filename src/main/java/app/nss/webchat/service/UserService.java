@@ -62,19 +62,19 @@ public class UserService {
         return setProfileInfo(username, password, email, admin);
     }
 
-    public User setProfileInfo(String username, String password, String email, User admin) {
+    public User setProfileInfo(String username, String password, String email, User userData) {
         if (userRepository.existsByUsername(username)) {
             throw new ApplicationException(HttpStatus.BAD_REQUEST, "The name has already been taken.");
         }
         if (userRepository.existsByEmail(email)) {
             throw new ApplicationException(HttpStatus.BAD_REQUEST, "The email has already been taken.");
         }
-        admin.setUsername(username);
-        admin.setEmail(email);
-        admin.setPassword(password);
-        admin.encodePassword(passwordEncoder);
-        admin.setAvatar(null); // default
-        return userRepository.save(admin);
+        userData.setUsername(username);
+        userData.setEmail(email);
+        userData.setPassword(password);
+        userData.encodePassword(passwordEncoder);
+        userData.setAvatar(null); // default
+        return userRepository.save(userData);
     }
 
     @CacheEvict(value = "usersCache", key = "#id")
@@ -87,37 +87,6 @@ public class UserService {
         userRepository.save(user);
     }
 
-    // ------------------------ User Status (Offline/Online) --------------------------------
-    @CacheEvict(value = "usersCache", key = "#username")
-    public void loginUser(String username) {
-        // Perform login logic
-        // ...
-        User user = userRepository.findByUsername(username);
-        if (user == null) {
-            throw new ApplicationException(HttpStatus.NOT_FOUND, "User with username " + username + " not found.");
-        }
-//        if (!user.getPassword().equals(password)) {
-//            throw new ApplicationException(HttpStatus.BAD_REQUEST, "Password is incorrect.");
-//        }
-        // Set the user status to ONLINE
-        user.setUserStatus(UserStatus.ONLINE);
-        userRepository.save(user);
-    }
-
-    @CacheEvict(value = "usersCache", key = "#username")
-    public void logoutUser(String username) {
-        // Perform logout logic
-        // ...
-        User user = userRepository.findByUsername(username);
-        if (user == null) { // TODO: Maybe must delete (in future)
-            throw new ApplicationException(HttpStatus.NOT_FOUND, "User with username " + username + " not found.");
-        }
-        // Set the user status to OFFLINE
-        user.setUserStatus(UserStatus.OFFLINE);
-        userRepository.save(user);
-    }
-
-    // ----------------------------------------------------------------------------------------
     @CacheEvict(value = "usersCache", key = "#id")
     @CachePut(value = "usersCache", key = "#id")
     public void updateUserById(Long id, String username, String password, String email) {

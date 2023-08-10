@@ -9,7 +9,6 @@ public record UserRequest(
         String firstName,
         String lastName,
         String avatar,
-
         UserStatus status
 ) {
 }

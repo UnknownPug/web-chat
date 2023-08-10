@@ -10,5 +10,6 @@ public record NotificationRequest(
         String content,
         @JsonProperty("time_stamp")
         LocalDateTime timeStamp,
-        Boolean status) {
+        Boolean status
+) {
 }

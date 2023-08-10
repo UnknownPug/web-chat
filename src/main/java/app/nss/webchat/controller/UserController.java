@@ -54,28 +54,28 @@ public class UserController {
     }
 
     @ResponseStatus(HttpStatus.CREATED)
-    @PostMapping
-    public ResponseEntity<User> createUser(
-            @RequestParam(value = "sort") String sort,
-            @RequestBody UserRequest userRequest) {
-        if (userRequest.username() == null ||
-                userRequest.password() == null ||
-                userRequest.email() == null) {
+    @PostMapping(path = "/register")
+    public ResponseEntity<User> createUser(@RequestBody UserRequest request) {
+        return createUserInternal(request, false);
+    }
+
+    @ResponseStatus(HttpStatus.CREATED)
+    @PostMapping(path = "/register-admin")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<User> createAdmin(@RequestBody UserRequest request) {
+        return createUserInternal(request, true);
+    }
+
+    private ResponseEntity<User> createUserInternal(UserRequest request, boolean isAdmin) {
+        if (request.username() == null || request.password() == null || request.email() == null) {
             throw new ApplicationException(HttpStatus.BAD_REQUEST, "Username, password and email must be specified.");
         }
-        if (sort.equals("new-user")) {
-            LOG.debug("User {} has been successfully created.", userRequest.username());
-            return ResponseEntity.ok(
-                    userService.createUser(userRequest.username(), userRequest.password(), userRequest.email())
-            );
-        } else if (sort.equals("new-admin")) {
-            LOG.debug("Admin {} has been successfully created.", userRequest.username());
-            return ResponseEntity.ok(
-                    userService.createAdmin(userRequest.username(), userRequest.password(), userRequest.email())
-            );
+        String userRole = isAdmin ? "Admin" : "User";
+        LOG.debug("{} {} has been successfully created.", userRole, request.username());
+        if (isAdmin) {
+            return ResponseEntity.ok(userService.createAdmin(request.username(), request.password(), request.email()));
         } else {
-            throw new ApplicationException(HttpStatus.BAD_REQUEST,
-                    "Set the sort type to user or admin to create a user or an admin.");
+            return ResponseEntity.ok(userService.createUser(request.username(), request.password(), request.email()));
         }
     }
 
@@ -92,26 +92,6 @@ public class UserController {
         userService.uploadAvatar(id, userRequest.avatar());
         LOG.debug("Avatar has been successfully uploaded.");
     }
-
-    // ------------------------------------------------------
-    // TODO: Should be used in Spring security (authorization) for user visibility (online/offline)
-    // TODO: After should be used in React.js for demonstrating user status (online/offline)
-    @ResponseStatus(HttpStatus.OK)
-    @PostMapping("/login")
-    @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
-    public ResponseEntity<Void> login(@RequestBody UserRequest userRequest) {
-        userService.loginUser(userRequest.username());
-        return ResponseEntity.ok().build();
-    }
-
-    @ResponseStatus(HttpStatus.OK)
-    @PostMapping("/logout")
-    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_USER')")
-    public ResponseEntity<Void> logout(@RequestBody UserRequest userRequest) {
-        userService.logoutUser(userRequest.username());
-        return ResponseEntity.ok().build();
-    }
-    // ------------------------------------------------------
 
     @ResponseStatus(HttpStatus.OK)
     @PutMapping(path = "/{id}")
