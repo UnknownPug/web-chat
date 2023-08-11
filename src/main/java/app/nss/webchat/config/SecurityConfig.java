@@ -10,20 +10,24 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 
+import java.util.Collections;
+
 import static org.springframework.security.config.Customizer.withDefaults;
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 public class SecurityConfig {
 
     private final UserRepository userRepository;
@@ -74,14 +78,12 @@ public class SecurityConfig {
             if (user != null) {
                 user.setUserStatus(UserStatus.ONLINE);
                 userRepository.save(user);
+                SimpleGrantedAuthority authority = new SimpleGrantedAuthority(user.getRole().toString());
+
                 return new org.springframework.security.core.userdetails.User(
                         user.getUsername(),
-                        user.getPassword(), // The stored password hash
-                        true, // Enabled
-                        true, // Account not expired
-                        true, // Credentials not expired
-                        true, // Account not locked
-                        AuthorityUtils.createAuthorityList("USER", "ADMIN")
+                        user.getPassword(),
+                        Collections.singleton(authority) // Set a single authority
                 );
             } else {
                 throw new UsernameNotFoundException("User " + username + " not found.");
