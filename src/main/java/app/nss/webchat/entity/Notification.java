@@ -3,11 +3,17 @@ package app.nss.webchat.entity;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
 
+@Getter
+@Setter
+@ToString
 @Entity
 @Table(name = "notification")
 public class Notification {
@@ -33,55 +39,4 @@ public class Notification {
     @ManyToOne
     @JoinColumn(name = "recipient", nullable = false)
     private User recipient;
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getContent() {
-        return content;
-    }
-
-    public void setContent(String content) {
-        this.content = content;
-    }
-
-    public LocalDateTime getTimeStamp() {
-        return timeStamp;
-    }
-
-    public void setTimeStamp(LocalDateTime timeStamp) {
-        this.timeStamp = timeStamp;
-    }
-
-    public NotificationStatus getStatus() {
-        return status;
-    }
-
-    public void setStatus(NotificationStatus status) {
-        this.status = status;
-    }
-
-    public User getRecipient() {
-        return recipient;
-    }
-
-    public void setRecipient(User recipient) {
-        this.recipient = recipient;
-    }
-
-    @Override
-    public String toString() {
-        return "Notification{" +
-                "id=" + id +
-                ", content='" + content + '\'' +
-                ", timeStamp=" + timeStamp +
-                ", status=" + status +
-                ", recipient=" + recipient +
-                '}';
-    }
 }

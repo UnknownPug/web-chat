@@ -94,10 +94,10 @@ public class ChatRoomService {
         User user = userRepository.findById(userId).orElseThrow(
                 () -> new ApplicationException(HttpStatus.NOT_FOUND, "User with id " + userId + " not found.")
         );
-        if (room.getUsers().contains(user)) {
+        if (room.getParticipants().contains(user)) {
             throw new ApplicationException(HttpStatus.BAD_REQUEST, "User is already in this room.");
         }
-        room.getUsers().add(user);
+        room.getParticipants().add(user);
         chatRoomRepository.save(room);
     }
 
@@ -138,10 +138,10 @@ public class ChatRoomService {
         User user = userRepository.findById(userId).orElseThrow(
                 () -> new ApplicationException(HttpStatus.NOT_FOUND, "User with id " + id + " not found.")
         );
-        if (!room.getUsers().contains(user)) {
+        if (!room.getParticipants().contains(user)) {
             throw new ApplicationException(HttpStatus.BAD_REQUEST, "User is not in this room.");
         }
-        room.getUsers().remove(user);
+        room.getParticipants().remove(user);
         chatRoomRepository.save(room);
     }
 }

@@ -1,0 +1,10 @@
+app.nss.webchat
+app.nss.webchat.config
+app.nss.webchat.controller
+app.nss.webchat.controller.handler
+app.nss.webchat.dto.request
+app.nss.webchat.dto.response
+app.nss.webchat.entity
+app.nss.webchat.exception
+app.nss.webchat.repository
+app.nss.webchat.service

@@ -134,7 +134,7 @@ public class NotificationService {
         User user = userRepository.findById(userId).orElseThrow(
                 () -> new ApplicationException(HttpStatus.NOT_FOUND, "User with id " + userId + " not found.")
         );
-        List<Notification> userNotifications = user.getNotification();
+        List<Notification> userNotifications = user.getNotifications();
         notificationRepository.deleteAll(userNotifications);
     }
 }

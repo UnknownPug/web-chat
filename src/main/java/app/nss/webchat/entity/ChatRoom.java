@@ -2,10 +2,16 @@ package app.nss.webchat.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 
 import javax.validation.constraints.Size;
 import java.util.List;
 
+@Getter
+@Setter
+@ToString
 @Entity
 @Table(name = "chat_room")
 public class ChatRoom {
@@ -26,65 +32,15 @@ public class ChatRoom {
     @JsonIgnore
     @ManyToMany
     @JoinTable(
-        name = "participants",
-        joinColumns = @JoinColumn(name = "chat_room_id"),
-        inverseJoinColumns = @JoinColumn(name = "user_id")
+            name = "participants",
+            joinColumns = @JoinColumn(name = "chat_room_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id")
     )
+    @ToString.Exclude
     private List<User> participants;
 
     @JsonIgnore
     @OneToMany(mappedBy = "room")
+    @ToString.Exclude
     private List<Message> messages;
-
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public List<User> getUsers() {
-        return participants;
-    }
-
-    public void setUsers(List<User> users) {
-        this.participants = users;
-    }
-
-    public List<Message> getMessage() {
-        return messages;
-    }
-
-    public void setMessage(List<Message> message) {
-        this.messages = message;
-    }
-
-    @Override
-    public String toString() {
-        return "ChatRoom{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", description='" + description + '\'' +
-                ", participants=" + participants +
-                ", message=" + messages +
-                '}';
-    }
 }
