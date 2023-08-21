@@ -94,12 +94,25 @@ public class MessageService {
         return messageRepository.save(message);
     }
 
+    public boolean containsUserInRoom(Long roomId, Long senderId) {
+        ChatRoom room = chatRoomRepository.findById(roomId).orElseThrow(
+                () -> new ApplicationException(HttpStatus.NOT_FOUND, "Room with id " + roomId + " not found.")
+        );
+        User sender = userRepository.findById(senderId).orElseThrow(
+                () -> new ApplicationException(HttpStatus.NOT_FOUND, "User with id " + senderId + " not found.")
+        );
+        return chatRoomRepository.containsUserInRoom(room.getId(), sender.getId());
+    }
+
     @CacheEvict(value = "messagesCache", key = "#id")
     @CachePut(value = "messagesCache", key = "#id")
-    public void updateMessage(Long id, String content) {
+    public void updateMessage(Long id, Long userId, String content) {
         Message message = messageRepository.findById(id).orElseThrow(
                 () -> new ApplicationException(HttpStatus.NOT_FOUND, "Message with id " + id + " not found.")
         );
+        if (!messageRepository.existsMessageByIdAndSenderId(id, userId)) {
+            throw new ApplicationException(HttpStatus.BAD_REQUEST, "Only user can update his message!");
+        }
         if (content != null && !content.isEmpty() && !Objects.equals(message.getContent(), content)) {
             message.setContent(content);
         } else {

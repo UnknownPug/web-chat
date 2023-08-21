@@ -4,8 +4,7 @@ import app.nss.webchat.dto.request.ChatRoomRequest;
 import app.nss.webchat.entity.ChatRoom;
 import app.nss.webchat.exception.ApplicationException;
 import app.nss.webchat.service.ChatRoomService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,11 +13,10 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequestMapping(path = "/chat-rooms")
 public class ChatRoomController {
-
-    private final static Logger LOG = LoggerFactory.getLogger(ChatRoomController.class);
 
     private final ChatRoomService chatRoomService;
 
@@ -95,7 +93,7 @@ public class ChatRoomController {
         if (chatRoomRequest.name().isEmpty() || chatRoomRequest.description().isEmpty()) {
             throw new ApplicationException(HttpStatus.NOT_FOUND, "ChatRoom name must be specified.");
         }
-        LOG.debug("Chat room {} has been successfully created.", chatRoomRequest.name());
+        log.info("Chat room {} has been successfully created.", chatRoomRequest.name());
         return ResponseEntity.ok(
                 chatRoomService.createChatRoom(chatRoomRequest.name(), chatRoomRequest.description())
         );
@@ -111,7 +109,7 @@ public class ChatRoomController {
         if (request.userId() <= 0) {
             throw new ApplicationException(HttpStatus.NOT_FOUND, "User id must be specified.");
         }
-        LOG.debug("Participant {} has been successfully added to chat room {}.", request.userId(), id);
+        log.info("Participant {} has been successfully added to chat room {}.", request.userId(), id);
         chatRoomService.addParticipant(id, request.userId());
     }
 
@@ -127,7 +125,7 @@ public class ChatRoomController {
         if (chatRoomRequest.name().isEmpty() || chatRoomRequest.description().isEmpty()) {
             throw new ApplicationException(HttpStatus.NOT_FOUND, "ChatRoom name must be specified.");
         }
-        LOG.debug("Chat room {} has been successfully updated.", chatRoomRequest.name());
+        log.info("Chat room {} has been successfully updated.", chatRoomRequest.name());
         chatRoomService.updateChatRoom(id, chatRoomRequest.name(), chatRoomRequest.description());
     }
 
@@ -138,7 +136,7 @@ public class ChatRoomController {
         if (id <= 0) {
             throw new ApplicationException(HttpStatus.NOT_FOUND, "ChatRoom id must be specified.");
         }
-        LOG.debug("Chat room has been successfully deleted.");
+        log.info("Chat room has been successfully deleted.");
         chatRoomService.deleteChatRoom(id);
     }
 
@@ -152,7 +150,7 @@ public class ChatRoomController {
         if (userId <= 0) {
             throw new ApplicationException(HttpStatus.NOT_FOUND, "User id must be specified.");
         }
-        LOG.debug("Participant has been successfully deleted from the chat room.");
+        log.info("Participant has been successfully deleted from the chat room.");
         chatRoomService.deleteParticipant(id, userId);
     }
 }

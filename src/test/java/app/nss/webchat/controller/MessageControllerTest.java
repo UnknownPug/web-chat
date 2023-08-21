@@ -1,5 +1,8 @@
 package app.nss.webchat.controller;
 
+import app.nss.webchat.config.KafkaConsumerConfig;
+import app.nss.webchat.config.KafkaProducerConfig;
+import app.nss.webchat.config.KafkaTopConfig;
 import app.nss.webchat.entity.Message;
 import app.nss.webchat.exception.ApplicationException;
 import app.nss.webchat.service.MessageService;
@@ -8,6 +11,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -27,8 +31,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @ExtendWith(SpringExtension.class)
 @WebMvcTest(MessageController.class)
+@Import({KafkaProducerConfig.class, KafkaConsumerConfig.class, KafkaTopConfig.class})
 public class MessageControllerTest {
-
     @Autowired
     private MockMvc mockMvc;
 

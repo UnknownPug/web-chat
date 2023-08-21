@@ -17,3 +17,5 @@ spring:
   mvc:
     servlet:
       path: /
+  kafka:
+    bootstrap-servers: localhost:9092

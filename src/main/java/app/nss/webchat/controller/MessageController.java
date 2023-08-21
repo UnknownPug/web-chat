@@ -5,27 +5,28 @@ import app.nss.webchat.dto.request.MessageRequest;
 import app.nss.webchat.entity.Message;
 import app.nss.webchat.exception.ApplicationException;
 import app.nss.webchat.service.MessageService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequestMapping(path = "/message")
 public class MessageController {
 
-    private static final Logger LOG = LoggerFactory.getLogger(MessageController.class);
-
     private final MessageService messageService;
+    private final KafkaTemplate<String, String> kafkaTemplate;
 
     @Autowired
-    public MessageController(MessageService messageService) {
+    public MessageController(MessageService messageService, KafkaTemplate<String, String> kafkaTemplate) {
         this.messageService = messageService;
+        this.kafkaTemplate = kafkaTemplate;
     }
 
     @ResponseStatus(HttpStatus.OK)
@@ -100,7 +101,11 @@ public class MessageController {
         if (messageRequest.content() == null) {
             throw new ApplicationException(HttpStatus.NOT_FOUND, "Message content must be specified.");
         }
-        LOG.debug("Message has been successfully created.");
+        if (!messageService.containsUserInRoom(messageRequest.roomId(), messageRequest.senderId())) {
+            throw new ApplicationException(HttpStatus.NOT_FOUND, "Chat room does not contain this user.");
+        }
+        kafkaTemplate.send("messages", messageRequest.roomId().toString(), messageRequest.content());
+        log.info("Message has been successfully sent.");
         return ResponseEntity.ok(messageService.sendMessage(
                 messageRequest.content(),
                 messageRequest.roomId(),
@@ -118,8 +123,9 @@ public class MessageController {
         if (messageRequest.content() == null) {
             throw new ApplicationException(HttpStatus.NOT_FOUND, "Message content must be specified.");
         }
-        messageService.updateMessage(id, messageRequest.content());
-        LOG.debug("Message been successfully updated.");
+        messageService.updateMessage(id, messageRequest.senderId(), messageRequest.content());
+        kafkaTemplate.send("messages", id.toString(), messageRequest.content());
+        log.info("Message been successfully updated.");
     }
 
     @ResponseStatus(HttpStatus.OK)
@@ -129,7 +135,8 @@ public class MessageController {
         if (id <= 0) {
             throw new ApplicationException(HttpStatus.NOT_FOUND, "Message id must be specified.");
         }
-        LOG.debug("Message has been successfully deleted.");
         messageService.deleteMessage(id);
+        log.info("Message has been successfully deleted.");
+        kafkaTemplate.send("messages", id.toString(), "");
     }
 }

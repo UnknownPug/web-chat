@@ -4,20 +4,18 @@ import app.nss.webchat.dto.request.NotificationRequest;
 import app.nss.webchat.entity.Notification;
 import app.nss.webchat.exception.ApplicationException;
 import app.nss.webchat.service.NotificationService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+@Slf4j
 @RestController
 @RequestMapping(path = "/notifications")
 @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
 public class NotificationController {
-
-    private static final Logger LOG = LoggerFactory.getLogger(NotificationController.class);
 
     private final NotificationService notificationService;
 
@@ -75,7 +73,7 @@ public class NotificationController {
             throw new ApplicationException(HttpStatus.NOT_FOUND,
                     "Recipient not found. Please provide a valid recipient for the notification.");
         }
-        LOG.debug("Notification has been successfully created.");
+        log.info("Notification has been successfully created.");
         return ResponseEntity.ok(notificationService.createNotification(
                 notificationRequest.content(),
                 notificationRequest.recipientId()));
@@ -91,7 +89,7 @@ public class NotificationController {
         if (notificationRequest.content().isEmpty()) {
             throw new ApplicationException(HttpStatus.NOT_FOUND, "Notification content must be specified.");
         }
-        LOG.debug("Notification has been successfully updated.");
+        log.info("Notification has been successfully updated.");
         notificationService.updateNotification(id, notificationRequest.content());
     }
 
@@ -101,10 +99,10 @@ public class NotificationController {
                                          @RequestBody NotificationRequest request) {
         if (mark.equals("read")) {
             notificationService.markAllAsRead(request.recipientId());
-            LOG.debug("All notifications have been successfully marked as read.");
+            log.info("All notifications have been successfully marked as read.");
         } else if (mark.equals("unread")) {
             notificationService.markAllAsUnread(request.recipientId());
-            LOG.debug("All notifications have been successfully marked as read.");
+            log.info("All notifications have been successfully marked as read.");
         } else {
             throw new ApplicationException(HttpStatus.NOT_FOUND, "Mark type must be specified: read/unread.");
         }
@@ -116,7 +114,7 @@ public class NotificationController {
         if (id <= 0) {
             throw new ApplicationException(HttpStatus.NOT_FOUND, "Notification id must be specified.");
         }
-        LOG.debug("Notification has been successfully deleted.");
+        log.info("Notification has been successfully deleted.");
         notificationService.deleteNotification(id);
     }
 
@@ -126,7 +124,7 @@ public class NotificationController {
         if (userId <= 0) {
             throw new ApplicationException(HttpStatus.NOT_FOUND, "User id must be specified.");
         }
-        LOG.debug("All notifications have been successfully deleted.");
+        log.info("All notifications have been successfully deleted.");
         notificationService.deleteAllNotificationsFromUser(userId);
     }
 }

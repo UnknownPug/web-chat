@@ -4,19 +4,17 @@ import app.nss.webchat.dto.request.UserRequest;
 import app.nss.webchat.entity.User;
 import app.nss.webchat.exception.ApplicationException;
 import app.nss.webchat.service.UserService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+@Slf4j
 @RestController
 @RequestMapping(path = "/users")
 public class UserController {
-
-    private static final Logger LOG = LoggerFactory.getLogger(UserController.class);
 
     private final UserService userService;
 
@@ -71,7 +69,7 @@ public class UserController {
             throw new ApplicationException(HttpStatus.BAD_REQUEST, "Username, password and email must be specified.");
         }
         String userRole = isAdmin ? "Admin" : "User";
-        LOG.debug("{} {} has been successfully created.", userRole, request.username());
+        log.info("{} {} has been successfully created.", userRole, request.username());
         if (isAdmin) {
             return ResponseEntity.ok(userService.createAdmin(request.username(), request.password(), request.email()));
         } else {
@@ -90,7 +88,7 @@ public class UserController {
             throw new ApplicationException(HttpStatus.BAD_REQUEST, "Avatar must be specified.");
         }
         userService.uploadAvatar(id, userRequest.avatar());
-        LOG.debug("Avatar has been successfully uploaded.");
+        log.info("Avatar has been successfully uploaded.");
     }
 
     @ResponseStatus(HttpStatus.OK)
@@ -106,7 +104,7 @@ public class UserController {
             throw new ApplicationException(HttpStatus.BAD_REQUEST, "Username, password and email must be specified.");
         }
         userService.updateUserById(id, userRequest.username(), userRequest.password(), userRequest.email());
-        LOG.debug("User {} has been successfully updated.", userRequest.username());
+        log.info("User {} has been successfully updated.", userRequest.username());
     }
 
     @ResponseStatus(HttpStatus.OK)
@@ -117,7 +115,7 @@ public class UserController {
             throw new ApplicationException(HttpStatus.NOT_FOUND, "User id must be specified.");
         }
         userService.updateUserStatusById(id, userRequest.status());
-        LOG.debug("User status has been successfully updated.");
+        log.info("User status has been successfully updated.");
     }
 
     @ResponseStatus(HttpStatus.OK)
@@ -128,6 +126,6 @@ public class UserController {
             throw new ApplicationException(HttpStatus.NOT_FOUND, "User id must be specified.");
         }
         userService.deleteUserById(id);
-        LOG.debug("User has been successfully deleted.");
+        log.info("User has been successfully deleted.");
     }
 }

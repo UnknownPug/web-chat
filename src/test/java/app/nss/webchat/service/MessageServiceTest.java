@@ -237,6 +237,7 @@ public class MessageServiceTest {
     @Test
     public void testUpdateMessageWithNoChange() {
         Long messageId = 1L;
+        Long senderId = 2L;
         String sameContent = "Same content";
 
         // Mocking the behavior of messageRepository.findById()
@@ -246,18 +247,19 @@ public class MessageServiceTest {
         when(messageRepository.findById(messageId)).thenReturn(Optional.of(mockMessage));
 
         // Assertions
-        assertThrows(ApplicationException.class, () -> messageService.updateMessage(messageId, sameContent));
+        assertThrows(ApplicationException.class, () -> messageService.updateMessage(messageId, senderId, sameContent));
     }
 
     @Test
     public void testUpdateMessageNotFound() {
         Long messageId = 1L;
+        Long senderId = 2L;
 
         // Mocking the behavior of messageRepository.findById()
         when(messageRepository.findById(messageId)).thenReturn(Optional.empty());
 
         // Assertions
-        assertThrows(ApplicationException.class, () -> messageService.updateMessage(messageId, "Updated content"));
+        assertThrows(ApplicationException.class, () -> messageService.updateMessage(messageId, senderId, "Updated content"));
     }
 
     @Test

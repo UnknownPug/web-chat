@@ -21,4 +21,7 @@ public interface MessageRepository extends JpaRepository<Message, Long> {
 
     @Query("SELECT m FROM Message AS m WHERE LOWER(m.content) LIKE %:keyword%")
     List<Message> findAllMessagesByKeyword(@Param("keyword") String keyword);
+
+    @Query("SELECT CASE WHEN COUNT(m) > 0 THEN TRUE ELSE FALSE END FROM Message m WHERE m.id = :messageId AND m.sender.id = :senderId")
+    boolean existsMessageByIdAndSenderId(@Param("messageId") Long messageId, @Param("senderId") Long senderId);
 }
