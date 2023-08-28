@@ -102,7 +102,7 @@ public class ChatRoomController {
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping(path = "/{id}/participants")
     @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
-    public void addParticipant(@PathVariable long id, @RequestBody ChatRoomRequest request) {
+    public void addParticipant(@PathVariable(value = "id") Long id, @RequestBody ChatRoomRequest request) {
         if (id <= 0) {
             throw new ApplicationException(HttpStatus.NOT_FOUND, "ChatRoom id must be specified.");
         }

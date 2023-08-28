@@ -120,6 +120,9 @@ public class MessageController {
         if (id <= 0) {
             throw new ApplicationException(HttpStatus.NOT_FOUND, "Message id must be specified.");
         }
+        if (messageRequest.senderId() <= 0) {
+            throw new ApplicationException(HttpStatus.NOT_FOUND, "Sender id must be specified.");
+        }
         if (messageRequest.content() == null) {
             throw new ApplicationException(HttpStatus.NOT_FOUND, "Message content must be specified.");
         }
