@@ -39,8 +39,7 @@
 
 ### <a name="uml"></a>UML diagram ([Powered by IntelliJ Ultimate](https://www.jetbrains.com/help/idea/class-diagram.html)):
 
-![](https://github.com/UnknownPug/web-chat/assets/73190129/7cfa204d-b916-488b-9e6a-1c6034ccbd7c)
-
+![UML](https://github.com/UnknownPug/web-chat/assets/73190129/e0ed6f35-31ac-4c8b-b69d-55b19ca95d2d)
 
 -- -- --
 
@@ -175,8 +174,7 @@ participate in discussions.
 Administrators will possess tools to oversee conversations, respond promptly to queries, manage interactions, and uphold
 community guidelines, fostering a positive online environment.
 
-![sd](https://github.com/UnknownPug/web-chat/assets/73190129/de55d0f3-bbd6-4dd6-98d4-61f5d42ccc77)
-
+![UserAdmin](https://github.com/UnknownPug/web-chat/assets/73190129/1d5409b6-403e-4f93-af8d-c9dbe06ade88)
 
 -- -- --
 
@@ -299,7 +297,7 @@ community guidelines, fostering a positive online environment.
 
 ### <a name="use"></a>Use Cases
 
-![](https://github.com/UnknownPug/web-chat/assets/73190129/8c25296b-beb1-46b5-81ba-149c93775710)
+![User Case](https://github.com/UnknownPug/web-chat/assets/73190129/aad2ce2f-00d8-4c63-9b69-72fb7058ed8b)
 
 -- -- --
 
