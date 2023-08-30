@@ -35,6 +35,9 @@
 
 ### <a name="uml"></a>UML diagram ([Powered by IntelliJ Ultimate](https://www.jetbrains.com/help/idea/class-diagram.html)):
 
+![](https://github.com/UnknownPug/web-chat/assets/73190129/7cfa204d-b916-488b-9e6a-1c6034ccbd7c)
+
+
 -- -- --
 
 ### <a name="postman"></a>Postman:
@@ -167,6 +170,10 @@ participate in discussions.
 
 Administrators will possess tools to oversee conversations, respond promptly to queries, manage interactions, and uphold
 community guidelines, fostering a positive online environment.
+
+![sd](https://github.com/UnknownPug/web-chat/assets/73190129/de55d0f3-bbd6-4dd6-98d4-61f5d42ccc77)
+
+
 -- -- --
 
 #### <a name="satal"></a>Selected appropriate technology and language
@@ -288,7 +295,7 @@ community guidelines, fostering a positive online environment.
 
 ### <a name="use"></a>Use Cases
 
-
+![](https://github.com/UnknownPug/web-chat/assets/73190129/8c25296b-beb1-46b5-81ba-149c93775710)
 
 -- -- --
 
