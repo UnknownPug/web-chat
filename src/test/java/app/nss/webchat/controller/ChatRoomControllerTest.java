@@ -2,6 +2,7 @@ package app.nss.webchat.controller;
 
 import app.nss.webchat.entity.ChatRoom;
 import app.nss.webchat.exception.ApplicationException;
+import app.nss.webchat.service.BlockedUserService;
 import app.nss.webchat.service.ChatRoomService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
@@ -20,8 +21,10 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -35,6 +38,9 @@ public class ChatRoomControllerTest {
 
     @MockBean
     private ChatRoomService chatRoomService;
+
+    @MockBean
+    private BlockedUserService blockService;
 
     @Test
     @WithMockUser(roles = "ADMIN")
@@ -103,6 +109,32 @@ public class ChatRoomControllerTest {
     }
 
     @Test
+    @WithMockUser(roles = "ADMIN")
+    public void testAddParticipant_BlockedUser() throws Exception {
+        long roomId = 1L;
+        long userId = 123L;
+
+        ChatRoom room = new ChatRoom();
+        room.setId(userId);
+
+        when(blockService.isUserBlockedForRoom(userId, roomId)).thenReturn(true);
+
+        ResultActions resultActions = mockMvc.perform(post("/chat-rooms/{id}/participants", roomId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(room)));
+
+        resultActions.andExpect(status().isForbidden());
+    }
+
+    private static String asJsonString(final Object obj) {
+        try {
+            return new ObjectMapper().writeValueAsString(obj);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Test
     @WithMockUser(roles = "USER")
     public void testGetChatRoomByName_ValidName() throws Exception {
         // Arrange
@@ -132,7 +164,7 @@ public class ChatRoomControllerTest {
         // Act
         ResultActions resultActions = mockMvc.perform(
                 get("/chat-rooms/name/{name}", (Object) null)
-                .contentType(MediaType.APPLICATION_JSON));
+                        .contentType(MediaType.APPLICATION_JSON));
 
         // Assert
         resultActions.andExpect(status().isNotFound());

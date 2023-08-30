@@ -10,6 +10,10 @@
 
 -- -- --
 
+### Java version: 20
+
+-- -- --
+
 ### Contents:
 
 #### 1. [UML](#uml)

@@ -3,6 +3,7 @@ package app.nss.webchat.controller;
 import app.nss.webchat.dto.request.ChatRoomRequest;
 import app.nss.webchat.entity.ChatRoom;
 import app.nss.webchat.exception.ApplicationException;
+import app.nss.webchat.service.BlockedUserService;
 import app.nss.webchat.service.ChatRoomService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,10 +20,12 @@ import java.util.List;
 public class ChatRoomController {
 
     private final ChatRoomService chatRoomService;
+    private final BlockedUserService blockService;
 
     @Autowired
-    public ChatRoomController(ChatRoomService chatRoomService) {
+    public ChatRoomController(ChatRoomService chatRoomService, BlockedUserService blockService) {
         this.chatRoomService = chatRoomService;
+        this.blockService = blockService;
     }
 
     @ResponseStatus(HttpStatus.OK)
@@ -109,8 +112,35 @@ public class ChatRoomController {
         if (request.userId() <= 0) {
             throw new ApplicationException(HttpStatus.NOT_FOUND, "User id must be specified.");
         }
+        if (blockService.isUserBlockedForRoom(request.userId(), id)) {
+            throw new ApplicationException(HttpStatus.FORBIDDEN, "User is blocked and can't be added.");
+        }
         log.info("Participant {} has been successfully added to chat room {}.", request.userId(), id);
         chatRoomService.addParticipant(id, request.userId());
+    }
+
+    @ResponseStatus(HttpStatus.OK)
+    @PostMapping(path = "/{id}/restrict/{uId}")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public void restrictUser(@PathVariable(value = "id") Long id,
+                             @PathVariable(value = "uId") Long userId,
+                             @RequestParam(value = "sort") String sort) {
+        if (sort.equals("block")) {
+            if (blockService.isUserBlockedForRoom(userId, id)) {
+                throw new ApplicationException(HttpStatus.FORBIDDEN, "User is blocked.");
+            }
+            blockService.blockUserForRoom(userId, id);
+            chatRoomService.deleteParticipant(id, userId); // Removing user from the room
+            log.info("User has been successfully blocked and removed from the room.");
+        } else if (sort.equals("unblock")) {
+            if (!blockService.isUserBlockedForRoom(userId, id)) {
+                throw new ApplicationException(HttpStatus.FORBIDDEN, "User is unblocked.");
+            }
+            blockService.unblockUserForRoom(userId, id);
+            log.info("User has been successfully unblocked.");
+        } else {
+            throw new ApplicationException(HttpStatus.NOT_FOUND, "Specific sort must be specified: block/unblock.");
+        }
     }
 
     @ResponseStatus(HttpStatus.OK)
@@ -131,7 +161,7 @@ public class ChatRoomController {
 
     @ResponseStatus(HttpStatus.OK)
     @DeleteMapping(path = "/{id}")
-    @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public void deleteChatRoom(@PathVariable(value = "id") Long id) {
         if (id <= 0) {
             throw new ApplicationException(HttpStatus.NOT_FOUND, "ChatRoom id must be specified.");

@@ -1,5 +1,11 @@
 server:
   port: 8082
+  error:
+    whitelabel:
+      enabled: false
+    path: /error
+  servlet:
+    context-path: /
 
 spring:
   datasource:

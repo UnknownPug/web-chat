@@ -110,7 +110,7 @@ public class UserController {
     @ResponseStatus(HttpStatus.OK)
     @PutMapping(path = "/{id}/status")
     @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_USER')")
-    public void updateUserStatusById(@PathVariable Long id, @RequestBody UserRequest userRequest) {
+    public void updateUserStatusById(@PathVariable(value = "id") Long id, @RequestBody UserRequest userRequest) {
         if (id <= 0) {
             throw new ApplicationException(HttpStatus.NOT_FOUND, "User id must be specified.");
         }
@@ -120,8 +120,8 @@ public class UserController {
 
     @ResponseStatus(HttpStatus.OK)
     @DeleteMapping(path = "/{id}")
-    @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
-    public void deleteUserById(@PathVariable Long id) {
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public void deleteUserById(@PathVariable(value = "id") Long id) {
         if (id <= 0) {
             throw new ApplicationException(HttpStatus.NOT_FOUND, "User id must be specified.");
         }

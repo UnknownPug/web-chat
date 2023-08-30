@@ -41,7 +41,7 @@ public class NotificationController {
 
     @ResponseStatus(HttpStatus.OK)
     @GetMapping(path = "/")
-    public ResponseEntity<Iterable<Notification>> getNotificationsSort(
+    public ResponseEntity<Iterable<Notification>> getNotificationSort(
             @RequestParam(value = "sort") String sort, @RequestBody NotificationRequest request) {
         if (sort.equals("unread")) {
             return ResponseEntity.ok(notificationService.getUnreadNotifications(request.recipientId()));
@@ -95,7 +95,7 @@ public class NotificationController {
 
     @ResponseStatus(HttpStatus.OK)
     @PutMapping(path = "/")
-    public void markAllNotificationsSort(@RequestParam(value = "mark") String mark,
+    public void markAllNotificationSort(@RequestParam(value = "mark") String mark,
                                          @RequestBody NotificationRequest request) {
         if (mark.equals("read")) {
             notificationService.markAllAsRead(request.recipientId());
