@@ -10,8 +10,8 @@
 
 -- -- --
 
-### Java version: 20
-#### Project also contains [javaDoc](https://github.com/UnknownPug/web-chat/tree/main/javadoc)
+### ● Java version: 20
+#### ● Project also contains [javaDoc](https://github.com/UnknownPug/web-chat/tree/main/javadoc)
 
 -- -- --
 
