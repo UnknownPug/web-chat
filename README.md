@@ -47,7 +47,7 @@
 ### <a name="postman"></a>Postman:
 
 - The link to the Postman requests for usage can be
-  found [here](https://documenter.getpostman.com/view/22903223/2s9Y5Ww2t6).
+  found [here](https://documenter.getpostman.com/view/22903223/2s9Y5Ww2t6)
 
 -- -- --
 
