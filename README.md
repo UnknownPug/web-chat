@@ -225,12 +225,13 @@ community guidelines, fostering a positive online environment.
 - To run Apache Kafka we need to complete these steps:
 
   1) Download [Kafka (2.13-3.6.0)](https://kafka.apache.org/downloads)
-  2) Start the ZooKeeper service: 
-    `$ zookeeper-server-start kafka_2.13-3.6.0/config/zookeeper.properties`
-  3) Start the Kafka broker service: `$ kafka-server-start kafka_2.13-3.6.0/config/server.properties`
-  4) Open another terminal session and run the console consumer client to read the events you just created:
+  2) Open folder, where the kafka_2.13-3.6.0 will be placed.
+  3) Start the ZooKeeper service: 
+  `$ zookeeper-server-start kafka_2.13-3.6.0/config/zookeeper.properties`
+  4) Start the Kafka broker service: `$ kafka-server-start kafka_2.13-3.6.0/config/server.properties`
+  5) Open another terminal session and run the console consumer client to read the events you just created:
      `$ kafka-console-consumer --topic messages --from-beginning --bootstrap-server localhost:your-number`
-  5) We are ready to go!
+  6) We are ready to go!
 -- -- --
 
 #### <a name="sec"></a>Security and Authorisation implementation
