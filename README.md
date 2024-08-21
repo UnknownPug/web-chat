@@ -314,7 +314,3 @@ community guidelines, fostering a positive online environment.
 ### <a name="cloud"></a>Cloud services
 
 - Amazon AWS cloud service was used, but a free tier version has been expired.
-
--- -- --
-
-### Thank you for your attention! 😄
